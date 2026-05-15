@@ -67,7 +67,8 @@ Establish the empty-but-runnable repository. No business code — just scaffoldi
 
 ## DEV-01 — Domain Layer
 
-**Status:** TODO
+**Status:** DONE
+**Commit:** c969fc9
 **Depends on:** DEV-00
 
 ### Goal
@@ -87,13 +88,13 @@ Author every domain entity and enum. No persistence, no EF attributes. Domain pr
 4. `dotnet build` on Domain project — zero warnings
 
 ### Definition of Done
-- [ ] `DrugstoreSystem.Domain` builds with zero warnings
-- [ ] No `using Microsoft.*` beyond `System.*`
-- [ ] No EF attributes (`[Key]`, `[Column]`, etc.)
-- [ ] All entity setters are `private`
-- [ ] All collection navigations initialized in constructors
-- [ ] Private parameterless constructor on every entity
-- [ ] Commit: `feat(domain): add core entities and enums (DEV-01)`
+- [x] `DrugstoreSystem.Domain` builds with zero warnings
+- [x] No `using Microsoft.*` beyond `System.*`
+- [x] No EF attributes (`[Key]`, `[Column]`, etc.)
+- [x] All entity setters are `private`
+- [x] All collection navigations initialized in constructors
+- [x] Private parameterless constructor on every entity
+- [x] Commit: `feat(domain): add core entities and enums (DEV-01)`
 
 ### Commit cadence
 1–2 commits.

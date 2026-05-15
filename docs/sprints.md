@@ -154,7 +154,8 @@ Wire EF Core to PostgreSQL with `pg_trgm`, produce the initial migration, verify
 
 ## DEV-03 — Authentication
 
-**Status:** TODO
+**Status:** DONE
+**Commit:** fb47709
 **Depends on:** DEV-02
 
 ### Goal
@@ -171,13 +172,13 @@ Admin and Pharmacist can log in. All admin/pharmacist pages require auth. Public
 8. Public pages (`/`, `/medicine/{id}`, `/pharmacy/{id}`) — verify they are accessible without login
 
 ### Definition of Done
-- [ ] Unauthenticated visit to `/admin/dashboard` redirects to `/auth/login`
-- [ ] Correct admin credentials → redirected to `/admin/dashboard`
-- [ ] Wrong credentials → "Email yoki parol noto'g'ri"
-- [ ] Logout → redirected to `/auth/login`
-- [ ] `/` accessible without login
-- [ ] DB has Admin user in `asp_net_users` after first startup
-- [ ] Commit: `feat(auth): add login/logout, roles, and admin seed (DEV-03)`
+- [x] Unauthenticated visit to `/admin/dashboard` redirects to `/auth/login`
+- [x] Correct admin credentials → redirected to `/admin/dashboard`
+- [x] Wrong credentials → "Email yoki parol noto'g'ri"
+- [x] Logout → redirected to `/auth/login`
+- [x] `/` accessible without login
+- [x] DB has Admin user in `asp_net_users` after first startup
+- [x] Commit: `feat(auth): add login/logout, roles, and admin seed (DEV-03)`
 
 ### Commit cadence
 2–3 commits.

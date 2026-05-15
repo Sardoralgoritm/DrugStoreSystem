@@ -106,7 +106,8 @@ Author every domain entity and enum. No persistence, no EF attributes. Domain pr
 
 ## DEV-02 — Database and Migrations
 
-**Status:** TODO
+**Status:** DONE
+**Commit:** 3c6dca5
 **Depends on:** DEV-01
 
 ### Goal
@@ -132,13 +133,13 @@ Wire EF Core to PostgreSQL with `pg_trgm`, produce the initial migration, verify
 11. `dotnet ef database update` — verify tables in pgAdmin
 
 ### Definition of Done
-- [ ] All expected tables in `drugstore` database with correct types
-- [ ] Snake_case applied: `pharmacy_medicines`, `medicine_synonyms`
-- [ ] `pg_trgm` extension present: `SELECT * FROM pg_extension WHERE extname = 'pg_trgm'`
-- [ ] GIN indexes present on medicine name columns
-- [ ] `dotnet ef database update` is idempotent
-- [ ] App starts without errors
-- [ ] Commits: `feat(db): add DbContext and initial migration with pg_trgm (DEV-02)`
+- [x] All expected tables in `drugstore` database with correct types
+- [x] Snake_case applied: `pharmacy_medicines`, `medicine_synonyms`
+- [x] `pg_trgm` extension present: `SELECT * FROM pg_extension WHERE extname = 'pg_trgm'`
+- [x] GIN indexes present on medicine name columns
+- [x] `dotnet ef database update` is idempotent
+- [x] App starts without errors
+- [x] Commits: `feat(db): add DbContext and initial migration with pg_trgm (DEV-02)`
 
 ### Commit cadence
 2–3 commits.

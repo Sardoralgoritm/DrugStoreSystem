@@ -1,3 +1,4 @@
+using DrugstoreSystem.Infrastructure;
 using DrugstoreSystem.Web.Components;
 using MudBlazor.Services;
 using Serilog;
@@ -14,6 +15,8 @@ try
         config.ReadFrom.Configuration(context.Configuration)
               .ReadFrom.Services(services)
               .Enrich.FromLogContext());
+
+    builder.Services.AddInfrastructure(builder.Configuration);
 
     builder.Services.AddRazorComponents()
         .AddInteractiveServerComponents();

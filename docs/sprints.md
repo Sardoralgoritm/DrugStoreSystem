@@ -17,7 +17,8 @@ Prefixes: `DEV-XX` for development, `DOC-XX` for thesis write-up.
 
 ## DEV-00 — Project Bootstrap
 
-**Status:** TODO
+**Status:** DONE
+**Commit:** 3622acb
 **Depends on:** — (first sprint)
 
 ### Goal
@@ -48,13 +49,13 @@ Establish the empty-but-runnable repository. No business code — just scaffoldi
 - `DrugstoreSystem.UnitTests`: `xunit`, `xunit.runner.visualstudio`, `FluentAssertions`, `Microsoft.NET.Test.Sdk`
 
 ### Definition of Done
-- [ ] Five `.csproj` files exist with `net10.0`
-- [ ] Project references match architecture.md §2
-- [ ] `dotnet restore` + `dotnet build` + `dotnet test` all pass
-- [ ] `dotnet run` shows Blazor welcome page
-- [ ] MudBlazor providers present in `MainLayout.razor`
-- [ ] `.gitignore` excludes `bin/`, `obj/`, `logs/`, user-secrets paths
-- [ ] Commit: `chore: bootstrap DrugstoreSystem solution (DEV-00)`
+- [x] Five `.csproj` files exist with `net10.0`
+- [x] Project references match architecture.md §2
+- [x] `dotnet restore` + `dotnet build` + `dotnet test` all pass
+- [x] `dotnet run` shows Blazor welcome page
+- [x] MudBlazor providers present in `MainLayout.razor`
+- [x] `.gitignore` excludes `bin/`, `obj/`, `logs/`, user-secrets paths
+- [x] Commit: `chore: bootstrap DrugstoreSystem solution (DEV-00)`
 
 ### Commit cadence
 1–2 commits.

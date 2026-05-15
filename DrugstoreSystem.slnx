@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DrugstoreSystem.Application/DrugstoreSystem.Application.csproj" />
+    <Project Path="src/DrugstoreSystem.Domain/DrugstoreSystem.Domain.csproj" />
+    <Project Path="src/DrugstoreSystem.Infrastructure/DrugstoreSystem.Infrastructure.csproj" />
+    <Project Path="src/DrugstoreSystem.Web/DrugstoreSystem.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DrugstoreSystem.UnitTests/DrugstoreSystem.UnitTests.csproj" />
+  </Folder>
+</Solution>

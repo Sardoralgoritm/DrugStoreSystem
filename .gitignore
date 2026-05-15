@@ -1,0 +1,29 @@
+# Build output
+bin/
+obj/
+.vs/
+
+# User secrets
+%APPDATA%/Microsoft/UserSecrets/
+
+# Logs
+logs/
+
+# Environment files
+*.env
+.env.*
+appsettings.Production.json
+appsettings.Staging.json
+
+# Rider / VS artifacts
+.idea/
+*.user
+*.suo
+
+# NuGet
+*.nupkg
+.nuget/
+
+# Test results
+TestResults/
+coverage/

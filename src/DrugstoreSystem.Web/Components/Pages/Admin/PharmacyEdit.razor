@@ -1,0 +1,133 @@
+@page "/admin/pharmacies/{Id:int}/edit"
+@attribute [Authorize(Roles = "Admin")]
+@inject IPharmacyService PharmacyService
+@inject ISnackbar Snackbar
+@inject NavigationManager Nav
+
+<PageTitle>Dorixonani tahrirlash</PageTitle>
+
+<MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-4">
+    <MudText Typo="Typo.h4">Dorixonani tahrirlash</MudText>
+    <MudSpacer />
+    <MudButton Variant="Variant.Text" StartIcon="@Icons.Material.Filled.ArrowBack"
+               Href="/admin/pharmacies">
+        Orqaga
+    </MudButton>
+</MudStack>
+
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" />
+}
+else if (_notFound)
+{
+    <MudAlert Severity="Severity.Error">Dorixona topilmadi.</MudAlert>
+}
+else
+{
+    <MudCard Elevation="2">
+        <MudCardContent>
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_name" Label="Nomi *" Variant="Variant.Outlined"
+                                  Error="@(_submitted && string.IsNullOrWhiteSpace(_name))"
+                                  ErrorText="Nom kiritilishi shart" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_phone" Label="Telefon" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_address" Label="Manzil *" Variant="Variant.Outlined"
+                                  Error="@(_submitted && string.IsNullOrWhiteSpace(_address))"
+                                  ErrorText="Manzil kiritilishi shart" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_latitude" Label="Kenglik (Latitude) *"
+                                  Variant="Variant.Outlined" InputType="InputType.Number" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_longitude" Label="Uzunlik (Longitude) *"
+                                  Variant="Variant.Outlined" InputType="InputType.Number" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_workingHours" Label="Ish vaqti"
+                                  Variant="Variant.Outlined" Placeholder="09:00 - 20:00" />
+                </MudItem>
+            </MudGrid>
+        </MudCardContent>
+        <MudCardActions Class="px-4 pb-4">
+            <MudSpacer />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                       OnClick="Submit" Disabled="@_saving">
+                @if (_saving)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                }
+                Saqlash
+            </MudButton>
+        </MudCardActions>
+    </MudCard>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private string _name = string.Empty;
+    private string _address = string.Empty;
+    private double _latitude;
+    private double _longitude;
+    private string? _phone;
+    private string? _workingHours;
+
+    private bool _loading = true;
+    private bool _notFound;
+    private bool _saving;
+    private bool _submitted;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var pharmacy = await PharmacyService.GetByIdAsync(Id);
+        if (pharmacy is null)
+        {
+            _notFound = true;
+        }
+        else
+        {
+            _name = pharmacy.Name;
+            _address = pharmacy.Address;
+            _latitude = pharmacy.Latitude;
+            _longitude = pharmacy.Longitude;
+            _phone = pharmacy.Phone;
+            _workingHours = pharmacy.WorkingHours;
+        }
+        _loading = false;
+    }
+
+    private async Task Submit()
+    {
+        _submitted = true;
+        if (string.IsNullOrWhiteSpace(_name) || string.IsNullOrWhiteSpace(_address)) return;
+
+        _saving = true;
+        try
+        {
+            await PharmacyService.UpdateAsync(Id, new UpdatePharmacyRequest(
+                _name, _address, _latitude, _longitude, _phone, _workingHours));
+
+            Snackbar.Add("O'zgarishlar saqlandi", Severity.Success);
+            Nav.NavigateTo("/admin/pharmacies");
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}
+
+@using DrugstoreSystem.Application.DTOs
+@using DrugstoreSystem.Application.Interfaces
+@using DrugstoreSystem.Application.Requests

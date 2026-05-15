@@ -1,0 +1,100 @@
+@page "/admin/pharmacies"
+@attribute [Authorize(Roles = "Admin")]
+@inject IPharmacyService PharmacyService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject NavigationManager Nav
+
+<PageTitle>Dorixonalar</PageTitle>
+
+<MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-4">
+    <MudText Typo="Typo.h4">Dorixonalar</MudText>
+    <MudSpacer />
+    <MudButton Variant="Variant.Filled" Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.Add"
+               Href="/admin/pharmacies/create">
+        Yangi dorixona
+    </MudButton>
+</MudStack>
+
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" />
+}
+else
+{
+    <MudTextField @bind-Value="_search" Placeholder="Nomi bo'yicha qidirish..."
+                  Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
+                  Immediate="true" Variant="Variant.Outlined" Class="mb-4" />
+
+    <MudTable Items="@Filtered" Hover="true" Striped="true" Elevation="2">
+        <HeaderContent>
+            <MudTh>Nomi</MudTh>
+            <MudTh>Manzil</MudTh>
+            <MudTh>Telefon</MudTh>
+            <MudTh>Holat</MudTh>
+            <MudTh>Amallar</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Name</MudTd>
+            <MudTd>@context.Address</MudTd>
+            <MudTd>@(context.Phone ?? "—")</MudTd>
+            <MudTd>
+                <MudSwitch Value="@context.IsActive" Color="Color.Success"
+                           ValueChanged="@(async (bool v) => await ToggleActive(context, v))"
+                           T="bool" />
+            </MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small"
+                               OnClick="@(() => Nav.NavigateTo($"/admin/pharmacies/{context.Id}/edit"))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small"
+                               Color="Color.Error"
+                               OnClick="@(() => ConfirmDelete(context))" />
+            </MudTd>
+        </RowTemplate>
+        <NoRecordsContent>
+            <MudText>Dorixona topilmadi.</MudText>
+        </NoRecordsContent>
+    </MudTable>
+}
+
+@code {
+    private List<PharmacyDto> _pharmacies = [];
+    private bool _loading = true;
+    private string _search = string.Empty;
+
+    private IEnumerable<PharmacyDto> Filtered => string.IsNullOrWhiteSpace(_search)
+        ? _pharmacies
+        : _pharmacies.Where(p => p.Name.Contains(_search, StringComparison.OrdinalIgnoreCase));
+
+    protected override async Task OnInitializedAsync()
+    {
+        _pharmacies = (await PharmacyService.GetAllAsync()).ToList();
+        _loading = false;
+    }
+
+    private async Task ToggleActive(PharmacyDto pharmacy, bool isActive)
+    {
+        await PharmacyService.SetActiveAsync(pharmacy.Id, isActive);
+        _pharmacies = (await PharmacyService.GetAllAsync()).ToList();
+        Snackbar.Add(isActive ? "Dorixona faollashtirildi" : "Dorixona o'chirildi", Severity.Success);
+    }
+
+    private async Task ConfirmDelete(PharmacyDto pharmacy)
+    {
+        var result = await DialogService.ShowMessageBoxAsync(
+            "O'chirish",
+            $"'{pharmacy.Name}' dorixonasini o'chirishni tasdiqlaysizmi?",
+            yesText: "Ha, o'chir", cancelText: "Bekor qilish");
+
+        if (result == true)
+        {
+            await PharmacyService.DeleteAsync(pharmacy.Id);
+            _pharmacies.Remove(pharmacy);
+            Snackbar.Add("Dorixona o'chirildi", Severity.Success);
+        }
+    }
+}
+
+@using DrugstoreSystem.Application.DTOs
+@using DrugstoreSystem.Application.Interfaces

@@ -1,0 +1,168 @@
+@page "/admin/pharmacies/create"
+@attribute [Authorize(Roles = "Admin")]
+@inject IPharmacyService PharmacyService
+@inject ISnackbar Snackbar
+@inject NavigationManager Nav
+
+<PageTitle>Yangi dorixona</PageTitle>
+
+<MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-4">
+    <MudText Typo="Typo.h4">Yangi dorixona</MudText>
+    <MudSpacer />
+    <MudButton Variant="Variant.Text" StartIcon="@Icons.Material.Filled.ArrowBack"
+               Href="/admin/pharmacies">
+        Orqaga
+    </MudButton>
+</MudStack>
+
+<MudCard Elevation="2">
+    <MudCardContent>
+        <MudStepper @ref="_stepper" @bind-ActiveIndex="_activeIndex">
+            <MudStep Title="Dorixona ma'lumotlari">
+                <MudGrid>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="_name" Label="Nomi *" Variant="Variant.Outlined"
+                                      Immediate="true" Error="@(_submitted && string.IsNullOrWhiteSpace(_name))"
+                                      ErrorText="Nom kiritilishi shart" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="_phone" Label="Telefon" Variant="Variant.Outlined" />
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="_address" Label="Manzil *" Variant="Variant.Outlined"
+                                      Immediate="true" Error="@(_submitted && string.IsNullOrWhiteSpace(_address))"
+                                      ErrorText="Manzil kiritilishi shart" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="_latitude" Label="Kenglik (Latitude) *" Variant="Variant.Outlined"
+                                      InputType="InputType.Number" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="_longitude" Label="Uzunlik (Longitude) *" Variant="Variant.Outlined"
+                                      InputType="InputType.Number" />
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="_workingHours" Label="Ish vaqti" Variant="Variant.Outlined"
+                                      Placeholder="09:00 - 20:00" />
+                    </MudItem>
+                </MudGrid>
+            </MudStep>
+
+            <MudStep Title="Farmatsevt akkaunt">
+                <MudGrid>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="_pharmacistEmail" Label="Farmatsevt Email *"
+                                      Variant="Variant.Outlined" InputType="InputType.Email"
+                                      Immediate="true"
+                                      Error="@(_submitted && string.IsNullOrWhiteSpace(_pharmacistEmail))"
+                                      ErrorText="Email kiritilishi shart" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="_pharmacistPassword" Label="Parol *"
+                                      Variant="Variant.Outlined" InputType="InputType.Password"
+                                      Immediate="true"
+                                      Error="@(_submitted && string.IsNullOrWhiteSpace(_pharmacistPassword))"
+                                      ErrorText="Parol kiritilishi shart"
+                                      HelperText="Kamida 6 ta belgi, raqam, katta harf va maxsus belgi" />
+                    </MudItem>
+                </MudGrid>
+            </MudStep>
+        </MudStepper>
+    </MudCardContent>
+    <MudCardActions Class="px-4 pb-4">
+        <MudButton Variant="Variant.Text" OnClick="StepBack"
+                   Disabled="@(_activeIndex == 0)">
+            Oldingi
+        </MudButton>
+        <MudSpacer />
+        @if (_activeIndex < 1)
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="StepNext">
+                Keyingi
+            </MudButton>
+        }
+        else
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                       OnClick="Submit" Disabled="@_saving">
+                @if (_saving)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                }
+                Saqlash
+            </MudButton>
+        }
+    </MudCardActions>
+</MudCard>
+
+@code {
+    private MudStepper? _stepper;
+    private int _activeIndex;
+
+    private string _name = string.Empty;
+    private string _address = string.Empty;
+    private double _latitude;
+    private double _longitude;
+    private string? _phone;
+    private string? _workingHours;
+    private string _pharmacistEmail = string.Empty;
+    private string _pharmacistPassword = string.Empty;
+
+    private bool _saving;
+    private bool _submitted;
+
+    private bool Step1Valid =>
+        !string.IsNullOrWhiteSpace(_name) &&
+        !string.IsNullOrWhiteSpace(_address) &&
+        _latitude != 0 && _longitude != 0;
+
+    private bool Step2Valid =>
+        !string.IsNullOrWhiteSpace(_pharmacistEmail) &&
+        !string.IsNullOrWhiteSpace(_pharmacistPassword);
+
+    private async Task StepBack()
+    {
+        if (_stepper is not null)
+            await _stepper.PreviousStepAsync();
+    }
+
+    private async Task StepNext()
+    {
+        _submitted = true;
+        if (!Step1Valid) return;
+        _submitted = false;
+        if (_stepper is not null)
+            await _stepper.NextStepAsync();
+    }
+
+    private async Task Submit()
+    {
+        _submitted = true;
+        if (!Step2Valid) return;
+
+        _saving = true;
+        try
+        {
+            var request = new CreatePharmacyRequest(
+                _name, _address, _latitude, _longitude,
+                _phone, _workingHours,
+                _pharmacistEmail, _pharmacistPassword);
+
+            await PharmacyService.CreateAsync(request);
+            Snackbar.Add("Dorixona muvaffaqiyatli yaratildi", Severity.Success);
+            Nav.NavigateTo("/admin/pharmacies");
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}
+
+@using DrugstoreSystem.Application.DTOs
+@using DrugstoreSystem.Application.Interfaces
+@using DrugstoreSystem.Application.Requests

@@ -1,7 +1,8 @@
 using DrugstoreSystem.Application.Interfaces;
 using DrugstoreSystem.Infrastructure.Identity;
 using DrugstoreSystem.Infrastructure.Persistence;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using DrugstoreSystem.Infrastructure.Repositories;
+using DrugstoreSystem.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -42,6 +43,13 @@ public static class DependencyInjection
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUser, CurrentUser>();
         services.AddScoped<DatabaseSeeder>();
+
+        // Repositories
+        services.AddScoped<IPharmacyRepository, PharmacyRepository>();
+
+        // Services
+        services.AddScoped<IPharmacyService, PharmacyService>();
+        services.AddScoped<IAdminService, AdminService>();
 
         return services;
     }

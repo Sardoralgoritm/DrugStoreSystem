@@ -1,0 +1,29 @@
+@page "/pharmacist/dashboard"
+@attribute [Authorize(Roles = "Pharmacist")]
+
+<PageTitle>Farmatsevt Panel</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mb-4">Farmatsevt Panel</MudText>
+
+<MudGrid>
+    <MudItem xs="12" sm="6">
+        <MudCard Elevation="2">
+            <MudCardContent Class="text-center">
+                <MudIcon Icon="@Icons.Material.Filled.Inventory" Size="Size.Large" Color="Color.Primary" />
+                <MudText Typo="Typo.h4">—</MudText>
+                <MudText Typo="Typo.body2">Inventardagi dorilar</MudText>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12" sm="6">
+        <MudCard Elevation="2">
+            <MudCardContent Class="text-center">
+                <MudIcon Icon="@Icons.Material.Filled.Warning" Size="Size.Large" Color="Color.Warning" />
+                <MudText Typo="Typo.h4">—</MudText>
+                <MudText Typo="Typo.body2">Kam qoldiq (5 dan kam)</MudText>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+</MudGrid>
+
+@using Microsoft.AspNetCore.Authorization

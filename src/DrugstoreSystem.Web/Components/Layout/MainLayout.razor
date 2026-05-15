@@ -1,4 +1,5 @@
 @inherits LayoutComponentBase
+@inject AuthenticationStateProvider AuthStateProvider
 
 <MudThemeProvider />
 <MudPopoverProvider />
@@ -10,6 +11,17 @@
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start"
                        OnClick="@ToggleDrawer" />
         <MudText Typo="Typo.h6" Class="ml-3">DorixonaSearch</MudText>
+        <MudSpacer />
+        <AuthorizeView>
+            <Authorized>
+                <MudText Class="mr-3" Typo="Typo.body2">@context.User.Identity?.Name</MudText>
+                <form method="post" action="/auth/logout-handler">
+                    <AntiforgeryToken />
+                    <MudIconButton Icon="@Icons.Material.Filled.Logout" Color="Color.Inherit"
+                                   ButtonType="ButtonType.Submit" title="Chiqish" />
+                </form>
+            </Authorized>
+        </AuthorizeView>
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
         <NavMenu />

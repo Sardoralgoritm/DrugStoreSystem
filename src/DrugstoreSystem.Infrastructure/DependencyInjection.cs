@@ -1,5 +1,7 @@
+using DrugstoreSystem.Application.Interfaces;
 using DrugstoreSystem.Infrastructure.Identity;
 using DrugstoreSystem.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -27,6 +29,19 @@ public static class DependencyInjection
             })
             .AddEntityFrameworkStores<DrugstoreDbContext>()
             .AddDefaultTokenProviders();
+
+        services.ConfigureApplicationCookie(options =>
+        {
+            options.LoginPath = "/auth/login";
+            options.LogoutPath = "/auth/logout";
+            options.AccessDeniedPath = "/auth/login";
+            options.ExpireTimeSpan = TimeSpan.FromHours(8);
+            options.SlidingExpiration = true;
+        });
+
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUser, CurrentUser>();
+        services.AddScoped<DatabaseSeeder>();
 
         return services;
     }

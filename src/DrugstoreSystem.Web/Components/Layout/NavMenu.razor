@@ -1,30 +1,36 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">DrugstoreSystem.Web</a>
-    </div>
-</div>
+@using Microsoft.AspNetCore.Components.Authorization
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+<MudNavMenu Class="pa-2">
+    <MudNavLink Href="/" Icon="@Icons.Material.Filled.Search" Match="NavLinkMatch.All">
+        Dori qidirish
+    </MudNavLink>
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
+    <AuthorizeView Roles="Admin">
+        <Authorized>
+            <MudDivider Class="my-2" />
+            <MudText Typo="Typo.caption" Class="px-3 py-1" Color="Color.Secondary">ADMIN</MudText>
+            <MudNavLink Href="/admin/dashboard" Icon="@Icons.Material.Filled.Dashboard">
+                Dashboard
+            </MudNavLink>
+            <MudNavLink Href="/admin/pharmacies" Icon="@Icons.Material.Filled.LocalPharmacy">
+                Dorixonalar
+            </MudNavLink>
+        </Authorized>
+    </AuthorizeView>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-    </nav>
-</div>
-
+    <AuthorizeView Roles="Pharmacist">
+        <Authorized>
+            <MudDivider Class="my-2" />
+            <MudText Typo="Typo.caption" Class="px-3 py-1" Color="Color.Secondary">FARMATSEVT</MudText>
+            <MudNavLink Href="/pharmacist/dashboard" Icon="@Icons.Material.Filled.Dashboard">
+                Dashboard
+            </MudNavLink>
+            <MudNavLink Href="/pharmacist/profile" Icon="@Icons.Material.Filled.Store">
+                Dorixonam
+            </MudNavLink>
+            <MudNavLink Href="/pharmacist/inventory" Icon="@Icons.Material.Filled.Inventory">
+                Inventar
+            </MudNavLink>
+        </Authorized>
+    </AuthorizeView>
+</MudNavMenu>

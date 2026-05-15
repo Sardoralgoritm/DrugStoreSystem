@@ -1,29 +1,71 @@
 @page "/pharmacist/dashboard"
 @attribute [Authorize(Roles = "Pharmacist")]
+@inject IInventoryService InventoryService
+@inject ICurrentUser CurrentUser
 
 <PageTitle>Farmatsevt Panel</PageTitle>
 
-<MudText Typo="Typo.h4" Class="mb-4">Farmatsevt Panel</MudText>
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" />
+}
+else if (_dashboard is not null)
+{
+    <MudText Typo="Typo.h4" Class="mb-6">@_dashboard.PharmacyName</MudText>
 
-<MudGrid>
-    <MudItem xs="12" sm="6">
-        <MudCard Elevation="2">
-            <MudCardContent Class="text-center">
-                <MudIcon Icon="@Icons.Material.Filled.Inventory" Size="Size.Large" Color="Color.Primary" />
-                <MudText Typo="Typo.h4">—</MudText>
-                <MudText Typo="Typo.body2">Inventardagi dorilar</MudText>
-            </MudCardContent>
-        </MudCard>
-    </MudItem>
-    <MudItem xs="12" sm="6">
-        <MudCard Elevation="2">
-            <MudCardContent Class="text-center">
-                <MudIcon Icon="@Icons.Material.Filled.Warning" Size="Size.Large" Color="Color.Warning" />
-                <MudText Typo="Typo.h4">—</MudText>
-                <MudText Typo="Typo.body2">Kam qoldiq (5 dan kam)</MudText>
-            </MudCardContent>
-        </MudCard>
-    </MudItem>
-</MudGrid>
+    <MudGrid Class="mb-6">
+        <MudItem xs="12" sm="6">
+            <MudCard Elevation="2">
+                <MudCardContent Class="text-center pa-6">
+                    <MudIcon Icon="@Icons.Material.Filled.Inventory" Size="Size.Large" Color="Color.Primary" Class="mb-2" />
+                    <MudText Typo="Typo.h4">@_dashboard.TotalMedicines</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">Inventardagi dorilar</MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudCard Elevation="2">
+                <MudCardContent Class="text-center pa-6">
+                    <MudIcon Icon="@Icons.Material.Filled.Warning" Size="Size.Large" Color="Color.Warning" Class="mb-2" />
+                    <MudText Typo="Typo.h4">@_dashboard.LowStockCount</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">Kam qoldiq (5 dan kam)</MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
 
+    @if (_dashboard.MostExpensive.Count > 0)
+    {
+        <MudText Typo="Typo.h6" Class="mb-2">Eng qimmat dorilar (Top 10)</MudText>
+        <MudTable Items="@_dashboard.MostExpensive" Hover="true" Elevation="2" Dense="true">
+            <HeaderContent>
+                <MudTh>Dori nomi</MudTh>
+                <MudTh>Shakli</MudTh>
+                <MudTh>Narx (UZS)</MudTh>
+                <MudTh>Miqdor</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.MedicineName</MudTd>
+                <MudTd>@(context.DosageForm ?? "—")</MudTd>
+                <MudTd>@context.Price.ToString("N0")</MudTd>
+                <MudTd>@context.Quantity</MudTd>
+            </RowTemplate>
+        </MudTable>
+    }
+}
+
+@code {
+    private PharmacistDashboardDto? _dashboard;
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (CurrentUser.PharmacyId is { } pharmacyId)
+            _dashboard = await InventoryService.GetDashboardAsync(pharmacyId);
+        _loading = false;
+    }
+}
+
+@using DrugstoreSystem.Application.DTOs
+@using DrugstoreSystem.Application.Interfaces
 @using Microsoft.AspNetCore.Authorization

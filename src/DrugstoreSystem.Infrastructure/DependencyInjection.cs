@@ -46,10 +46,12 @@ public static class DependencyInjection
 
         // Repositories
         services.AddScoped<IPharmacyRepository, PharmacyRepository>();
+        services.AddScoped<IInventoryRepository, InventoryRepository>();
 
         // Services
         services.AddScoped<IPharmacyService, PharmacyService>();
         services.AddScoped<IAdminService, AdminService>();
+        services.AddScoped<IInventoryService, InventoryService>();
 
         return services;
     }

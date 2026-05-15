@@ -25,3 +25,5 @@ public record CreatePharmacistRequest(
     string Password,
     int PharmacyId
 );
+
+public record UpdateInventoryItemRequest(decimal Price, int Quantity);

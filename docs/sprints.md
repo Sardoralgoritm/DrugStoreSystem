@@ -190,7 +190,8 @@ Admin and Pharmacist can log in. All admin/pharmacist pages require auth. Public
 
 ## DEV-04 — Admin Panel: Pharmacy Management
 
-**Status:** TODO
+**Status:** DONE
+**Commit:** 0df7d61
 **Depends on:** DEV-03
 
 ### Goal
@@ -209,13 +210,13 @@ Admin can register pharmacies, view them, edit, activate/deactivate, and delete.
 6. NavMenu for Admin role
 
 ### Definition of Done
-- [ ] Admin can create a pharmacy + pharmacist account in one flow
-- [ ] Pharmacy list shows all pharmacies with active status
-- [ ] Toggle switch activates/deactivates a pharmacy
-- [ ] Edit updates name, address, coordinates, phone, working hours
-- [ ] Delete with confirm dialog — works
-- [ ] Pharmacist account created and able to log in (verify manually)
-- [ ] Commits: `feat(admin): pharmacy CRUD and pharmacist account creation (DEV-04)`
+- [x] Admin can create a pharmacy + pharmacist account in one flow
+- [x] Pharmacy list shows all pharmacies with active status
+- [x] Toggle switch activates/deactivates a pharmacy
+- [x] Edit updates name, address, coordinates, phone, working hours
+- [x] Delete with confirm dialog — works
+- [x] Pharmacist account created and able to log in (verify manually)
+- [x] Commits: `feat(admin): pharmacy CRUD and pharmacist account creation (DEV-04)`
 
 ### Commit cadence
 3–5 commits.
@@ -483,11 +484,11 @@ DEV-00 Bootstrap
 
 | Sprint | Status | Branch | Commit | Notes |
 |---|---|---|---|---|
-| DEV-00 | TODO | — | — | — |
-| DEV-01 | TODO | — | — | — |
-| DEV-02 | TODO | — | — | — |
-| DEV-03 | TODO | — | — | — |
-| DEV-04 | TODO | — | — | — |
+| DEV-00 | DONE | main | 3622acb | — |
+| DEV-01 | DONE | main | c969fc9 | — |
+| DEV-02 | DONE | main | 3c6dca5 | — |
+| DEV-03 | DONE | main | fb47709 | — |
+| DEV-04 | DONE | main | 0df7d61 | — |
 | DEV-05 | TODO | — | — | — |
 | DEV-06 | TODO | — | — | — |
 | DEV-07 | TODO | — | — | — |

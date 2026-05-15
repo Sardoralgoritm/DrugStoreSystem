@@ -1,0 +1,169 @@
+@page "/pharmacist/inventory"
+@attribute [Authorize(Roles = "Pharmacist")]
+@inject IInventoryService InventoryService
+@inject ICurrentUser CurrentUser
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<PageTitle>Inventar</PageTitle>
+
+<MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-4">
+    <MudText Typo="Typo.h4">Inventar</MudText>
+    <MudSpacer />
+    <MudButton Variant="Variant.Filled" Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.Add"
+               Href="/pharmacist/inventory/add">
+        Dori qo'shish
+    </MudButton>
+</MudStack>
+
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" />
+}
+else
+{
+    <MudTextField @bind-Value="_search" Placeholder="Dori nomi bo'yicha qidirish..."
+                  Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
+                  Immediate="true" Variant="Variant.Outlined" Class="mb-4" />
+
+    <MudTable Items="@Filtered" Hover="true" Striped="true" Elevation="2">
+        <HeaderContent>
+            <MudTh>Dori nomi</MudTh>
+            <MudTh>Shakli</MudTh>
+            <MudTh>Narx (UZS)</MudTh>
+            <MudTh>Miqdor</MudTh>
+            <MudTh>Yangilangan</MudTh>
+            <MudTh>Amallar</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>
+                @context.MedicineName
+                @if (context.GenericName is not null && context.GenericName != context.MedicineName)
+                {
+                    <MudText Typo="Typo.caption" Color="Color.Secondary"> (@context.GenericName)</MudText>
+                }
+            </MudTd>
+            <MudTd>@(context.DosageForm ?? "—")</MudTd>
+            <MudTd>@context.Price.ToString("N0")</MudTd>
+            <MudTd>
+                @context.Quantity
+                @if (context.Quantity < 5)
+                {
+                    <MudChip T="string" Color="Color.Warning" Size="Size.Small" Class="ml-1">Kam qoldi</MudChip>
+                }
+            </MudTd>
+            <MudTd>@context.UpdatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small"
+                               OnClick="@(() => OpenEditDialog(context))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small"
+                               Color="Color.Error"
+                               OnClick="@(() => ConfirmRemove(context))" />
+            </MudTd>
+        </RowTemplate>
+        <NoRecordsContent>
+            <MudText>Inventarda dori topilmadi.</MudText>
+        </NoRecordsContent>
+    </MudTable>
+}
+
+@* Edit dialog *@
+<MudDialog @bind-Visible="_editOpen" Options="_dialogOptions">
+    <TitleContent>Narx va miqdorni tahrirlash</TitleContent>
+    <DialogContent>
+        <MudText Typo="Typo.subtitle1" Class="mb-4">@_editingItem?.MedicineName</MudText>
+        <MudNumericField @bind-Value="_editPrice" Label="Narx (UZS)" Variant="Variant.Outlined"
+                         Min="0m" Class="mb-3" />
+        <MudNumericField @bind-Value="_editQuantity" Label="Miqdor (dona)" Variant="Variant.Outlined"
+                         Min="0" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CloseEditDialog">Bekor qilish</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                   OnClick="SaveEdit" Disabled="@_saving">
+            Saqlash
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private List<InventoryItemDto> _items = [];
+    private bool _loading = true;
+    private string _search = string.Empty;
+
+    private bool _editOpen;
+    private InventoryItemDto? _editingItem;
+    private decimal _editPrice;
+    private int _editQuantity;
+    private bool _saving;
+
+    private readonly DialogOptions _dialogOptions = new() { MaxWidth = MaxWidth.Small, FullWidth = true };
+
+    private IEnumerable<InventoryItemDto> Filtered => string.IsNullOrWhiteSpace(_search)
+        ? _items
+        : _items.Where(i => i.MedicineName.Contains(_search, StringComparison.OrdinalIgnoreCase));
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        if (CurrentUser.PharmacyId is { } pharmacyId)
+            _items = (await InventoryService.GetInventoryAsync(pharmacyId)).ToList();
+        _loading = false;
+    }
+
+    private void OpenEditDialog(InventoryItemDto item)
+    {
+        _editingItem = item;
+        _editPrice = item.Price;
+        _editQuantity = item.Quantity;
+        _editOpen = true;
+    }
+
+    private void CloseEditDialog() => _editOpen = false;
+
+    private async Task SaveEdit()
+    {
+        if (_editingItem is null || CurrentUser.PharmacyId is not { } pharmacyId) return;
+
+        _saving = true;
+        try
+        {
+            await InventoryService.UpdateItemAsync(_editingItem.Id, pharmacyId,
+                new UpdateInventoryItemRequest(_editPrice, _editQuantity));
+            Snackbar.Add("O'zgarishlar saqlandi", Severity.Success);
+            _editOpen = false;
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private async Task ConfirmRemove(InventoryItemDto item)
+    {
+        var result = await DialogService.ShowMessageBoxAsync(
+            "O'chirish",
+            $"'{item.MedicineName}' ni inventardan o'chirishni tasdiqlaysizmi?",
+            yesText: "Ha, o'chir", cancelText: "Bekor qilish");
+
+        if (result == true && CurrentUser.PharmacyId is { } pharmacyId)
+        {
+            await InventoryService.RemoveItemAsync(item.Id, pharmacyId);
+            _items.Remove(item);
+            Snackbar.Add("Dori inventardan o'chirildi", Severity.Success);
+        }
+    }
+}
+
+@using DrugstoreSystem.Application.DTOs
+@using DrugstoreSystem.Application.Interfaces
+@using DrugstoreSystem.Application.Requests
+@using Microsoft.AspNetCore.Authorization

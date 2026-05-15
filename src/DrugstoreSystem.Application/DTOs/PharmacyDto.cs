@@ -21,3 +21,21 @@ public record AdminDashboardDto(
 );
 
 public record AppUserDto(int Id, string Email, string Role, int? PharmacyId);
+
+public record InventoryItemDto(
+    int Id,
+    int MedicineId,
+    string MedicineName,
+    string? GenericName,
+    string? DosageForm,
+    decimal Price,
+    int Quantity,
+    DateTime UpdatedAt
+);
+
+public record PharmacistDashboardDto(
+    string PharmacyName,
+    int TotalMedicines,
+    int LowStockCount,
+    IReadOnlyList<InventoryItemDto> MostExpensive
+);

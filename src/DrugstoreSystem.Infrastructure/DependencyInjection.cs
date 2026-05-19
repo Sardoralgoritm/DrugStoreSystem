@@ -29,7 +29,8 @@ public static class DependencyInjection
                 options.User.RequireUniqueEmail = true;
             })
             .AddEntityFrameworkStores<DrugstoreDbContext>()
-            .AddDefaultTokenProviders();
+            .AddDefaultTokenProviders()
+            .AddClaimsPrincipalFactory<AppUserClaimsPrincipalFactory>();
 
         services.ConfigureApplicationCookie(options =>
         {

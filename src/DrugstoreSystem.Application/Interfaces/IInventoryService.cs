@@ -9,4 +9,5 @@ public interface IInventoryService
     Task<IReadOnlyList<InventoryItemDto>> GetInventoryAsync(int pharmacyId, CancellationToken ct = default);
     Task UpdateItemAsync(int itemId, int pharmacyId, UpdateInventoryItemRequest request, CancellationToken ct = default);
     Task RemoveItemAsync(int itemId, int pharmacyId, CancellationToken ct = default);
+    Task AddToInventoryAsync(int pharmacyId, AddToInventoryRequest request, CancellationToken ct = default);
 }

@@ -1,6 +1,7 @@
 using DrugstoreSystem.Application.Interfaces;
 using DrugstoreSystem.Infrastructure.Identity;
 using DrugstoreSystem.Infrastructure.Persistence;
+using DrugstoreSystem.Infrastructure.Persistence.Search;
 using DrugstoreSystem.Infrastructure.Repositories;
 using DrugstoreSystem.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
@@ -48,11 +49,14 @@ public static class DependencyInjection
         // Repositories
         services.AddScoped<IPharmacyRepository, PharmacyRepository>();
         services.AddScoped<IInventoryRepository, InventoryRepository>();
+        services.AddScoped<IMedicineRepository, MedicineRepository>();
+        services.AddScoped<ISearchRepository, SearchRepository>();
 
         // Services
         services.AddScoped<IPharmacyService, PharmacyService>();
         services.AddScoped<IAdminService, AdminService>();
         services.AddScoped<IInventoryService, InventoryService>();
+        services.AddScoped<IMedicineService, MedicineService>();
 
         return services;
     }

@@ -23,6 +23,16 @@ public class InventoryRepository : IInventoryRepository
             .Include(pm => pm.Medicine)
             .FirstOrDefaultAsync(pm => pm.Id == id, ct);
 
+    public async Task<PharmacyMedicine?> GetByPharmacyAndMedicineAsync(int pharmacyId, int medicineId, CancellationToken ct = default)
+        => await _db.PharmacyMedicines
+            .FirstOrDefaultAsync(pm => pm.PharmacyId == pharmacyId && pm.MedicineId == medicineId, ct);
+
+    public async Task AddAsync(PharmacyMedicine item, CancellationToken ct = default)
+    {
+        _db.PharmacyMedicines.Add(item);
+        await _db.SaveChangesAsync(ct);
+    }
+
     public async Task UpdateAsync(PharmacyMedicine item, CancellationToken ct = default)
     {
         _db.PharmacyMedicines.Update(item);

@@ -1,4 +1,5 @@
 using DrugstoreSystem.Application.DTOs;
+using DrugstoreSystem.Application.Helpers;
 using DrugstoreSystem.Application.Interfaces;
 using DrugstoreSystem.Application.Requests;
 using DrugstoreSystem.Domain.Entities;
@@ -73,12 +74,27 @@ public class InventoryService : IInventoryService
         await _repo.DeleteAsync(itemId, ct);
     }
 
+    public async Task AddToInventoryAsync(int pharmacyId, AddToInventoryRequest request, CancellationToken ct = default)
+    {
+        var existing = await _repo.GetByPharmacyAndMedicineAsync(pharmacyId, request.MedicineId, ct);
+        if (existing is not null)
+        {
+            existing.UpdateStock(request.Price, request.Quantity);
+            await _repo.UpdateAsync(existing, ct);
+        }
+        else
+        {
+            var item = new PharmacyMedicine(pharmacyId, request.MedicineId, request.Price, request.Quantity);
+            await _repo.AddAsync(item, ct);
+        }
+    }
+
     private static InventoryItemDto ToDto(PharmacyMedicine pm) => new(
         pm.Id,
         pm.MedicineId,
         pm.Medicine.Name,
         pm.Medicine.GenericName,
-        pm.Medicine.DosageForm?.ToString(),
+        pm.Medicine.DosageForm.ToUzbek(),
         pm.Price,
         pm.Quantity,
         pm.UpdatedAt);

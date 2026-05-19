@@ -1,0 +1,272 @@
+@page "/pharmacist/inventory/add"
+@attribute [Authorize(Roles = "Pharmacist")]
+@inject IMedicineService MedicineService
+@inject IInventoryService InventoryService
+@inject ICurrentUser CurrentUser
+@inject ISnackbar Snackbar
+@inject NavigationManager Nav
+
+<PageTitle>Dori qo'shish</PageTitle>
+
+<MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-4">
+    <MudText Typo="Typo.h4">Dori qo'shish</MudText>
+    <MudSpacer />
+    <MudButton Variant="Variant.Text" StartIcon="@Icons.Material.Filled.ArrowBack"
+               Href="/pharmacist/inventory">
+        Orqaga
+    </MudButton>
+</MudStack>
+
+@* ── Section 1: search existing catalog ── *@
+<MudCard Elevation="2" Class="mb-4">
+    <MudCardContent>
+        <MudText Typo="Typo.h6" Class="mb-3">Mavjud dorini qo'shish</MudText>
+
+        <MudAutocomplete T="MedicineAutocompleteDto"
+                         Label="Dori nomini qidiring..."
+                         SearchFunc="@SearchMedicines"
+                         ToStringFunc="@(m => m is null ? "" : (m.GenericName is not null ? $"{m.Name} ({m.GenericName})" : m.Name))"
+                         MinCharacters="2"
+                         DebounceInterval="300"
+                         ResetValueOnEmptyText="true"
+                         Variant="Variant.Outlined"
+                         Class="mb-4"
+                         ValueChanged="@OnMedicineSelected" />
+
+        @if (_selectedMedicine is not null)
+        {
+            <MudAlert Severity="Severity.Info" Class="mb-4">
+                <MudText><b>@_selectedMedicine.Name</b>
+                    @if (_selectedMedicine.GenericName is not null)
+                    {
+                        <span> — @_selectedMedicine.GenericName</span>
+                    }
+                    @if (_selectedMedicine.DosageForm is not null)
+                    {
+                        <MudChip T="string" Size="Size.Small" Color="Color.Default" Class="ml-2">@_selectedMedicine.DosageForm</MudChip>
+                    }
+                </MudText>
+            </MudAlert>
+
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudNumericField @bind-Value="_price" Label="Narx (UZS) *"
+                                     Variant="Variant.Outlined" Min="0m" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudNumericField @bind-Value="_quantity" Label="Miqdor (dona) *"
+                                     Variant="Variant.Outlined" Min="0" />
+                </MudItem>
+            </MudGrid>
+        }
+    </MudCardContent>
+
+    @if (_selectedMedicine is not null)
+    {
+        <MudCardActions Class="px-4 pb-4">
+            <MudSpacer />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                       OnClick="AddExisting" Disabled="@_saving">
+                @if (_saving) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" /> }
+                Inventarga qo'shish
+            </MudButton>
+        </MudCardActions>
+    }
+</MudCard>
+
+@* ── Section 2: create new medicine ── *@
+<MudExpansionPanels Elevation="2">
+    <MudExpansionPanel Text="Yangi dori yaratish" Icon="@Icons.Material.Filled.Add">
+        <MudGrid>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="_newName" Label="Nomi *" Variant="Variant.Outlined"
+                              Error="@(_createSubmitted && string.IsNullOrWhiteSpace(_newName))"
+                              ErrorText="Nom kiritilishi shart" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="_newGenericName" Label="Generik nomi" Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="_newNameRu" Label="Rus tilidagi nomi" Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudSelect @bind-Value="_newDosageForm" Label="Shakli" Variant="Variant.Outlined"
+                           Clearable="true">
+                    @foreach (var form in Enum.GetValues<DosageForm>())
+                    {
+                        <MudSelectItem Value="@((DosageForm?)form)">@form.ToUzbek()</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudSelect @bind-Value="_newCategoryId" Label="Kategoriya" Variant="Variant.Outlined"
+                           Clearable="true">
+                    @foreach (var cat in _categories)
+                    {
+                        <MudSelectItem Value="@((int?)cat.Id)">@cat.Name</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="_newManufacturer" Label="Ishlab chiqaruvchi" Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="_newDescription" Label="Tavsif" Variant="Variant.Outlined"
+                              Lines="2" />
+            </MudItem>
+
+            @* Synonyms chip input *@
+            <MudItem xs="12">
+                <MudText Typo="Typo.body2" Class="mb-1">Sinonimlar (savdo nomlari)</MudText>
+                <MudStack Row="true" AlignItems="AlignItems.Center">
+                    <MudTextField @bind-Value="_synonymInput" Placeholder="Sinonim kiriting..."
+                                  Variant="Variant.Outlined" Style="flex:1"
+                                  OnKeyDown="@OnSynonymKeyDown" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary"
+                                   OnClick="AddSynonym" />
+                </MudStack>
+                @if (_synonyms.Count > 0)
+                {
+                    <MudStack Row="true" Wrap="Wrap.Wrap" Class="mt-2">
+                        @foreach (var s in _synonyms)
+                        {
+                            <MudChip T="string" OnClose="@(() => _synonyms.Remove(s))" Color="Color.Primary">@s</MudChip>
+                        }
+                    </MudStack>
+                }
+            </MudItem>
+
+            @* Price and quantity for new medicine *@
+            <MudItem xs="12" sm="6">
+                <MudNumericField @bind-Value="_newPrice" Label="Narx (UZS) *"
+                                 Variant="Variant.Outlined" Min="0m" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudNumericField @bind-Value="_newQuantity" Label="Miqdor (dona) *"
+                                 Variant="Variant.Outlined" Min="0" />
+            </MudItem>
+        </MudGrid>
+
+        <div class="d-flex justify-end mt-4">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                       OnClick="CreateAndAdd" Disabled="@_saving">
+                @if (_saving) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" /> }
+                Yaratib inventarga qo'shish
+            </MudButton>
+        </div>
+    </MudExpansionPanel>
+</MudExpansionPanels>
+
+@code {
+    // Existing medicine search
+    private MedicineAutocompleteDto? _selectedMedicine;
+    private decimal _price;
+    private int _quantity;
+
+    // New medicine form
+    private string _newName = string.Empty;
+    private string? _newGenericName;
+    private string? _newNameRu;
+    private DosageForm? _newDosageForm;
+    private int? _newCategoryId;
+    private string? _newManufacturer;
+    private string? _newDescription;
+    private decimal _newPrice;
+    private int _newQuantity;
+    private string _synonymInput = string.Empty;
+    private List<string> _synonyms = [];
+
+    private List<CategoryDto> _categories = [];
+    private bool _saving;
+    private bool _createSubmitted;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _categories = (await MedicineService.GetCategoriesAsync()).ToList();
+    }
+
+    private async Task<IEnumerable<MedicineAutocompleteDto>> SearchMedicines(string value, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(value) || value.Length < 2) return [];
+        return await MedicineService.AutocompleteAsync(value, ct);
+    }
+
+    private void OnMedicineSelected(MedicineAutocompleteDto? medicine)
+    {
+        _selectedMedicine = medicine;
+        _price = 0;
+        _quantity = 0;
+    }
+
+    private async Task AddExisting()
+    {
+        if (_selectedMedicine is null || CurrentUser.PharmacyId is not { } pharmacyId) return;
+
+        _saving = true;
+        try
+        {
+            await InventoryService.AddToInventoryAsync(pharmacyId,
+                new AddToInventoryRequest(_selectedMedicine.Id, _price, _quantity));
+            Snackbar.Add($"{_selectedMedicine.Name} inventarga qo'shildi", Severity.Success);
+            Nav.NavigateTo("/pharmacist/inventory");
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private void OnSynonymKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") AddSynonym();
+    }
+
+    private void AddSynonym()
+    {
+        var s = _synonymInput.Trim();
+        if (!string.IsNullOrWhiteSpace(s) && !_synonyms.Contains(s, StringComparer.OrdinalIgnoreCase))
+            _synonyms.Add(s);
+        _synonymInput = string.Empty;
+    }
+
+    private async Task CreateAndAdd()
+    {
+        _createSubmitted = true;
+        if (string.IsNullOrWhiteSpace(_newName)) return;
+        if (CurrentUser.PharmacyId is not { } pharmacyId) return;
+
+        _saving = true;
+        try
+        {
+            var medicine = await MedicineService.CreateAsync(new CreateMedicineRequest(
+                _newName, _newGenericName, _newNameRu, _newDosageForm,
+                _newCategoryId, _newManufacturer, _newDescription,
+                pharmacyId, _synonyms));
+
+            await InventoryService.AddToInventoryAsync(pharmacyId,
+                new AddToInventoryRequest(medicine.Id, _newPrice, _newQuantity));
+
+            Snackbar.Add($"{medicine.Name} yaratildi va inventarga qo'shildi", Severity.Success);
+            Nav.NavigateTo("/pharmacist/inventory");
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}
+
+@using DrugstoreSystem.Application.DTOs
+@using DrugstoreSystem.Application.Interfaces
+@using DrugstoreSystem.Application.Requests
+@using DrugstoreSystem.Domain.Enums
+@using DrugstoreSystem.Application.Helpers
+@using Microsoft.AspNetCore.Authorization

@@ -1,5 +1,7 @@
+using DrugstoreSystem.Domain.Entities;
 using DrugstoreSystem.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -7,17 +9,20 @@ namespace DrugstoreSystem.Infrastructure.Persistence;
 
 public class DatabaseSeeder
 {
+    private readonly DrugstoreDbContext _db;
     private readonly UserManager<AppUser> _userManager;
     private readonly RoleManager<IdentityRole<int>> _roleManager;
     private readonly IConfiguration _configuration;
     private readonly ILogger<DatabaseSeeder> _logger;
 
     public DatabaseSeeder(
+        DrugstoreDbContext db,
         UserManager<AppUser> userManager,
         RoleManager<IdentityRole<int>> roleManager,
         IConfiguration configuration,
         ILogger<DatabaseSeeder> logger)
     {
+        _db = db;
         _userManager = userManager;
         _roleManager = roleManager;
         _configuration = configuration;
@@ -28,6 +33,7 @@ public class DatabaseSeeder
     {
         await SeedRolesAsync();
         await SeedAdminAsync();
+        await SeedCategoriesAsync();
     }
 
     private async Task SeedRolesAsync()
@@ -40,6 +46,33 @@ public class DatabaseSeeder
                 _logger.LogInformation("Created role {Role}", role);
             }
         }
+    }
+
+    private async Task SeedCategoriesAsync()
+    {
+        if (await _db.Categories.AnyAsync()) return;
+
+        var categories = new[]
+        {
+            "Og'riq qoldiruvchi",
+            "Antibiotik",
+            "Vitamin va minerallar",
+            "Yurak-tomir",
+            "Oshqozon-ichak",
+            "Asab tizimi",
+            "Allergiya",
+            "Nafas yo'llari",
+            "Dermatologik",
+            "Ko'z dorisi",
+            "Quloq va burun",
+            "Gormonal",
+            "Diabet",
+            "Boshqa",
+        };
+
+        _db.Categories.AddRange(categories.Select(n => new Category(n)));
+        await _db.SaveChangesAsync();
+        _logger.LogInformation("Seeded {Count} categories", categories.Length);
     }
 
     private async Task SeedAdminAsync()

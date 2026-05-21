@@ -16,6 +16,9 @@ public class MedicineService : IMedicineService
         _search = search;
     }
 
+    public Task<Medicine?> GetByIdAsync(int id, CancellationToken ct = default)
+        => _repo.GetByIdAsync(id, ct);
+
     public Task<IReadOnlyList<MedicineAutocompleteDto>> AutocompleteAsync(string query, CancellationToken ct = default)
         => _search.AutocompleteAsync(query, ct);
 

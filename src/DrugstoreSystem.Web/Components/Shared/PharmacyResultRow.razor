@@ -1,0 +1,42 @@
+@* Single row in pharmacy results table *@
+<MudTr>
+    <MudTd>
+        <MudText>@Pharmacy.PharmacyName</MudText>
+        <MudText Typo="Typo.caption" Color="Color.Secondary">@Pharmacy.Address</MudText>
+    </MudTd>
+    <MudTd>
+        <MudText>@Pharmacy.Price.ToString("N0") so'm</MudText>
+    </MudTd>
+    <MudTd>
+        @if (Pharmacy.Quantity < 5)
+        {
+            <MudChip T="string" Color="Color.Warning" Size="Size.Small">@Pharmacy.Quantity ta</MudChip>
+        }
+        else
+        {
+            <MudText>@Pharmacy.Quantity ta</MudText>
+        }
+    </MudTd>
+    <MudTd>
+        <MudText Typo="Typo.caption">@(Pharmacy.WorkingHours ?? "—")</MudText>
+    </MudTd>
+    <MudTd>
+        <MudIconButton Icon="@Icons.Material.Filled.Map"
+                       Size="Size.Small"
+                       Color="Color.Primary"
+                       title="Xaritada ko'rish"
+                       Href="@($"https://www.google.com/maps/search/?api=1&query={Pharmacy.Latitude},{Pharmacy.Longitude}")"
+                       Target="_blank" />
+        <MudIconButton Icon="@Icons.Material.Filled.Info"
+                       Size="Size.Small"
+                       Color="Color.Default"
+                       title="Batafsil"
+                       Href="@($"/pharmacy/{Pharmacy.PharmacyId}")" />
+    </MudTd>
+</MudTr>
+
+@using DrugstoreSystem.Application.DTOs
+
+@code {
+    [Parameter, EditorRequired] public PharmacyResultDto Pharmacy { get; set; } = null!;
+}

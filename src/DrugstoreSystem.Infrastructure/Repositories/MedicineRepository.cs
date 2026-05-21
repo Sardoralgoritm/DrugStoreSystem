@@ -11,6 +11,12 @@ public class MedicineRepository : IMedicineRepository
 
     public MedicineRepository(DrugstoreDbContext db) => _db = db;
 
+    public async Task<Medicine?> GetByIdAsync(int id, CancellationToken ct = default)
+        => await _db.Medicines
+            .Include(m => m.Category)
+            .Include(m => m.Synonyms)
+            .FirstOrDefaultAsync(m => m.Id == id, ct);
+
     public async Task<Medicine> CreateAsync(Medicine medicine, CancellationToken ct = default)
     {
         _db.Medicines.Add(medicine);

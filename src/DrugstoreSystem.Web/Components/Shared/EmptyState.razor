@@ -1,0 +1,9 @@
+@* Shown when a list or search has no results *@
+<MudStack AlignItems="AlignItems.Center" Class="py-8">
+    <MudIcon Icon="@Icons.Material.Filled.SearchOff" Color="Color.Default" Style="font-size:3rem;" />
+    <MudText Typo="Typo.body1" Color="Color.Secondary">@Message</MudText>
+</MudStack>
+
+@code {
+    [Parameter, EditorRequired] public string Message { get; set; } = string.Empty;
+}

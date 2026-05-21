@@ -1,3 +1,4 @@
+using DrugstoreSystem.Application.DTOs;
 using DrugstoreSystem.Application.Interfaces;
 using DrugstoreSystem.Domain.Entities;
 using DrugstoreSystem.Infrastructure.Persistence;
@@ -48,4 +49,23 @@ public class InventoryRepository : IInventoryRepository
             await _db.SaveChangesAsync(ct);
         }
     }
+
+    public async Task<IReadOnlyList<PharmacyResultDto>> GetAvailablePharmaciesAsync(int medicineId, CancellationToken ct = default)
+        => await _db.PharmacyMedicines
+            .Include(pm => pm.Pharmacy)
+            .Where(pm => pm.MedicineId == medicineId
+                      && pm.Quantity > 0
+                      && pm.Pharmacy.IsActive)
+            .Select(pm => new PharmacyResultDto(
+                pm.Pharmacy.Id,
+                pm.Pharmacy.Name,
+                pm.Pharmacy.Address,
+                pm.Pharmacy.Latitude,
+                pm.Pharmacy.Longitude,
+                pm.Pharmacy.Phone,
+                pm.Pharmacy.WorkingHours,
+                pm.Price,
+                pm.Quantity,
+                pm.Id))
+            .ToListAsync(ct);
 }

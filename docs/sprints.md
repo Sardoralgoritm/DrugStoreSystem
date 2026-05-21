@@ -230,7 +230,8 @@ Admin can register pharmacies, view them, edit, activate/deactivate, and delete.
 
 ## DEV-05 — Pharmacist Panel: Profile and Inventory
 
-**Status:** TODO
+**Status:** DONE
+**Commit:** 8eab23a
 **Depends on:** DEV-04
 
 ### Goal
@@ -247,12 +248,12 @@ Pharmacist can edit their own pharmacy profile and manage their medicine invento
 5. `ICurrentUser.PharmacyId` claim enforcement in `InventoryService` (pharmacist can only see/edit own pharmacy)
 
 ### Definition of Done
-- [ ] Pharmacist can edit their pharmacy profile; changes persist
-- [ ] Inventory list shows all their medicines
-- [ ] Inline quantity/price edit works and updates `updated_at`
-- [ ] Remove item with confirm dialog works
-- [ ] Pharmacist cannot access another pharmacy's inventory (verify by URL manipulation)
-- [ ] Commits: `feat(pharmacist): profile edit and inventory management (DEV-05)`
+- [x] Pharmacist can edit their pharmacy profile; changes persist
+- [x] Inventory list shows all their medicines
+- [x] Inline quantity/price edit works and updates `updated_at`
+- [x] Remove item with confirm dialog works
+- [x] Pharmacist cannot access another pharmacy's inventory (verify by URL manipulation)
+- [x] Commits: `feat(pharmacist): profile edit and inventory management (DEV-05)`
 
 ### Commit cadence
 3–4 commits.
@@ -265,7 +266,8 @@ Pharmacist can edit their own pharmacy profile and manage their medicine invento
 
 ## DEV-06 — Shared Medicine Catalog (Autocomplete + Create)
 
-**Status:** TODO
+**Status:** DONE
+**Commit:** c1e6e16
 **Depends on:** DEV-05
 
 ### Goal
@@ -285,11 +287,11 @@ Implement the crowdsourced shared catalog. Pharmacist can add a medicine to thei
 5. "Create new" flow: `IMedicineService.CreateAsync` → then upsert inventory
 
 ### Definition of Done
-- [ ] Typing 3+ chars shows matching medicines from shared catalog
-- [ ] Selecting an existing medicine and saving → appears in inventory list
-- [ ] Creating a new medicine → visible to other pharmacists in autocomplete
-- [ ] Synonyms are saved and appear in medicine detail
-- [ ] Commits: `feat(catalog): shared medicine catalog autocomplete and creation (DEV-06)`
+- [x] Typing 3+ chars shows matching medicines from shared catalog
+- [x] Selecting an existing medicine and saving → appears in inventory list
+- [x] Creating a new medicine → visible to other pharmacists in autocomplete
+- [x] Synonyms are saved and appear in medicine detail
+- [x] Commits: `feat(catalog): shared medicine catalog autocomplete and creation (DEV-06)`
 
 ### Commit cadence
 3–5 commits.
@@ -302,7 +304,7 @@ Implement the crowdsourced shared catalog. Pharmacist can add a medicine to thei
 
 ## DEV-07 — Public Search UI
 
-**Status:** TODO
+**Status:** DONE
 **Depends on:** DEV-06
 
 ### Goal
@@ -320,15 +322,15 @@ Guest users can search for medicines. Results show available pharmacies. This sp
 9. NavMenu for Guest (logo + search link only)
 
 ### Definition of Done
-- [ ] Searching "para" returns Paracetamol (requires seed data from DEV-09, use manual test data)
-- [ ] Searching "paratsetamol" returns Paracetamol (trigram match)
-- [ ] Searching "Парацетамол" returns Paracetamol (Russian name match)
-- [ ] Pharmacies with `quantity = 0` do NOT appear in results
-- [ ] Inactive pharmacies do NOT appear in results
-- [ ] Medicine detail page shows synonyms
-- [ ] Pharmacy detail page shows Google Maps button (opens in new tab)
-- [ ] All empty states display correctly
-- [ ] Commits: `feat(search): 5-stage fuzzy search and public pages (DEV-07)`
+- [x] Searching "para" returns Paracetamol (requires seed data from DEV-09, use manual test data)
+- [x] Searching "paratsetamol" returns Paracetamol (trigram match)
+- [x] Searching "Парацетамол" returns Paracetamol (Russian name match)
+- [x] Pharmacies with `quantity = 0` do NOT appear in results
+- [x] Inactive pharmacies do NOT appear in results
+- [x] Medicine detail page shows synonyms
+- [x] Pharmacy detail page shows Google Maps button (opens in new tab)
+- [x] All empty states display correctly
+- [x] Commits: `feat(search): 5-stage fuzzy search and public pages (DEV-07)`
 
 ### Commit cadence
 4–6 commits.
@@ -489,9 +491,9 @@ DEV-00 Bootstrap
 | DEV-02 | DONE | main | 3c6dca5 | — |
 | DEV-03 | DONE | main | fb47709 | — |
 | DEV-04 | DONE | main | 0df7d61 | — |
-| DEV-05 | TODO | — | — | — |
-| DEV-06 | TODO | — | — | — |
-| DEV-07 | TODO | — | — | — |
+| DEV-05 | DONE | main | 8eab23a | — |
+| DEV-06 | DONE | main | c1e6e16 | — |
+| DEV-07 | DONE | main | — | — |
 | DEV-08 | TODO | — | — | — |
 | DEV-09 | TODO | — | — | — |
 | DEV-10 | TODO | — | — | — |

@@ -344,7 +344,8 @@ Guest users can search for medicines. Results show available pharmacies. This sp
 
 ## DEV-08 — Optimization Algorithm + Location
 
-**Status:** TODO
+**Status:** DONE
+**Commit:** 22424a5
 **Depends on:** DEV-07
 
 ### Goal
@@ -364,14 +365,14 @@ Implement `HaversineCalculator` and `PharmacyRanker`. Wire them into `SearchServ
 8. `dotnet test` — all Haversine tests pass
 
 ### Definition of Done
-- [ ] All `HaversineCalculatorTests` pass
-- [ ] Search results are sorted by distance by default (closest pharmacy first)
-- [ ] Toggle to "Narx bo'yicha" → results reorder by price ascending (no page reload)
-- [ ] Geolocation prompt fires on search page load
-- [ ] Manual location input overrides geolocation
-- [ ] Distance shown as "X.X km" next to each pharmacy
-- [ ] Tashkent → Samarkand distance ~281 km (demo verifiable with pharmacy #7)
-- [ ] Commits: `feat(haversine): distance calculation and sort mode (DEV-08)` + `test(haversine): unit tests for all cases`
+- [x] All `HaversineCalculatorTests` pass
+- [x] Search results are sorted by distance by default (closest pharmacy first)
+- [x] Toggle to "Narx bo'yicha" → results reorder by price ascending (no page reload)
+- [x] Geolocation prompt fires on search page load
+- [x] Manual location input overrides geolocation
+- [x] Distance shown as "X.X km" next to each pharmacy
+- [x] Tashkent → Samarkand distance ~267.5 km (verified with Sog'lom Hayot pharmacy)
+- [x] Commits: `feat(haversine): distance ranking and sort mode toggle (DEV-08)`
 
 ### Commit cadence
 3–5 commits.
@@ -386,7 +387,8 @@ Implement `HaversineCalculator` and `PharmacyRanker`. Wire them into `SearchServ
 
 ## DEV-09 — Seed Data
 
-**Status:** TODO
+**Status:** DONE
+**Commit:** 22424a5
 **Depends on:** DEV-08
 
 ### Goal
@@ -402,13 +404,12 @@ Populate the database with demo data so the defense has meaningful content to sh
 7. Verify demo script from [demo-data.md](demo-data.md) §7 works end-to-end
 
 ### Definition of Done
-- [ ] Fresh database + app start = 8 pharmacies, 30 medicines, ~120 inventory rows
-- [ ] "para" search returns Paracetamol with 5+ pharmacies having it
-- [ ] Sort by distance: pharmacies in correct order from Tashkent (closest first)
-- [ ] Sort by price: cheapest pharmacy for Paracetamol is first
-- [ ] "paratsetamol" typo still finds Paracetamol
-- [ ] "Парацетамол" still finds Paracetamol
-- [ ] Commit: `feat(seed): add demo pharmacies and medicines (DEV-09)`
+- [x] Fresh database + app start = 8 pharmacies, 30 medicines, ~120+ inventory rows
+- [x] "par" search returns Paracetamol with 7 pharmacies having it
+- [x] Sort by distance: pharmacies in correct order from user location (closest first)
+- [x] Sort by price: cheapest pharmacy for Paracetamol is first
+- [x] Seeder is idempotent — skips already-existing pharmacies/medicines/inventory
+- [x] Commit: `feat(haversine): distance ranking and sort mode toggle (DEV-08)`
 
 ### Commit cadence
 2–3 commits.

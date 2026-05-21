@@ -82,20 +82,20 @@
                 <MudStack Row AlignItems="AlignItems.Center" Class="mb-2">
                     <MudText Typo="Typo.h6">Mavjud dorixonalar</MudText>
                     <MudSpacer />
-                    <MudToggleGroup T="DrugstoreSystem.Domain.Enums.SortMode"
-                                    Value="_sortMode"
-                                    SelectionMode="SelectionMode.SingleSelection"
-                                    Color="Color.Primary" CheckMark
-                                    ValueChanged="OnSortModeChanged">
-                        <MudToggleItem Value="DrugstoreSystem.Domain.Enums.SortMode.Distance">
+                    <MudButtonGroup Variant="Variant.Outlined" Color="Color.Primary" OverrideStyles="false">
+                        <MudButton Color="@(_sortMode == DrugstoreSystem.Domain.Enums.SortMode.Distance ? Color.Primary : Color.Default)"
+                                   Variant="@(_sortMode == DrugstoreSystem.Domain.Enums.SortMode.Distance ? Variant.Filled : Variant.Outlined)"
+                                   OnClick="@(() => ApplySort(DrugstoreSystem.Domain.Enums.SortMode.Distance))">
                             <MudIcon Icon="@Icons.Material.Filled.NearMe" Size="Size.Small" Class="mr-1" />
                             Yaqinlik
-                        </MudToggleItem>
-                        <MudToggleItem Value="DrugstoreSystem.Domain.Enums.SortMode.Price">
+                        </MudButton>
+                        <MudButton Color="@(_sortMode == DrugstoreSystem.Domain.Enums.SortMode.Price ? Color.Primary : Color.Default)"
+                                   Variant="@(_sortMode == DrugstoreSystem.Domain.Enums.SortMode.Price ? Variant.Filled : Variant.Outlined)"
+                                   OnClick="@(() => ApplySort(DrugstoreSystem.Domain.Enums.SortMode.Price))">
                             <MudIcon Icon="@Icons.Material.Filled.AttachMoney" Size="Size.Small" Class="mr-1" />
                             Narx
-                        </MudToggleItem>
-                    </MudToggleGroup>
+                        </MudButton>
+                    </MudButtonGroup>
                 </MudStack>
 
                 @if (_rankedPharmacies.Count == 0)
@@ -104,47 +104,52 @@
                 }
                 else
                 {
-                    <MudTable Items="@_rankedPharmacies" Dense Hover Elevation="1">
-                        <HeaderContent>
-                            <MudTh>Dorixona</MudTh>
-                            <MudTh>Narxi</MudTh>
-                            <MudTh>Miqdor</MudTh>
-                            <MudTh>Masofa</MudTh>
-                            <MudTh>Ish vaqti</MudTh>
-                            <MudTh></MudTh>
-                        </HeaderContent>
-                        <RowTemplate>
-                            <MudTd DataLabel="Dorixona">
-                                <MudText>@context.PharmacyName</MudText>
-                                <MudText Typo="Typo.caption" Color="Color.Secondary">@context.Address</MudText>
-                            </MudTd>
-                            <MudTd DataLabel="Narxi">@context.Price.ToString("N0") so'm</MudTd>
-                            <MudTd DataLabel="Miqdor">
-                                @if (context.Quantity < 5)
-                                {
-                                    <MudChip T="string" Color="Color.Warning" Size="Size.Small">@context.Quantity ta</MudChip>
-                                }
-                                else
-                                {
-                                    <MudText>@context.Quantity ta</MudText>
-                                }
-                            </MudTd>
-                            <MudTd DataLabel="Masofa">
-                                <MudText Typo="Typo.caption">
-                                    @(context.DistanceKm.HasValue ? $"{context.DistanceKm:F1} km" : "Masofa noma'lum")
-                                </MudText>
-                            </MudTd>
-                            <MudTd DataLabel="Ish vaqti">
-                                <MudText Typo="Typo.caption">@(context.WorkingHours ?? "—")</MudText>
-                            </MudTd>
-                            <MudTd>
-                                <MudIconButton Icon="@Icons.Material.Filled.Map" Size="Size.Small" Color="Color.Primary"
-                                               Href="@context.MapsUrl" Target="_blank" />
-                                <MudIconButton Icon="@Icons.Material.Filled.Info" Size="Size.Small" Color="Color.Default"
-                                               Href="@($"/pharmacy/{context.PharmacyId}")" />
-                            </MudTd>
-                        </RowTemplate>
-                    </MudTable>
+                    <MudSimpleTable Dense Hover Elevation="1">
+                        <thead>
+                            <tr>
+                                <th>Dorixona</th>
+                                <th>Narxi</th>
+                                <th>Miqdor</th>
+                                <th>Masofa</th>
+                                <th>Ish vaqti</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var p in _rankedPharmacies)
+                            {
+                                <tr>
+                                    <td>
+                                        <MudText>@p.PharmacyName</MudText>
+                                        <MudText Typo="Typo.caption" Color="Color.Secondary">@p.Address</MudText>
+                                    </td>
+                                    <td>@p.Price.ToString("N0") so'm</td>
+                                    <td>
+                                        @if (p.Quantity < 5)
+                                        {
+                                            <MudChip T="string" Color="Color.Warning" Size="Size.Small">@p.Quantity ta</MudChip>
+                                        }
+                                        else
+                                        {
+                                            <MudText>@p.Quantity ta</MudText>
+                                        }
+                                    </td>
+                                    <td>
+                                        <MudText Typo="Typo.caption">
+                                            @(p.DistanceKm.HasValue ? $"{p.DistanceKm:F1} km" : "—")
+                                        </MudText>
+                                    </td>
+                                    <td><MudText Typo="Typo.caption">@(p.WorkingHours ?? "—")</MudText></td>
+                                    <td>
+                                        <MudIconButton Icon="@Icons.Material.Filled.Map" Size="Size.Small" Color="Color.Primary"
+                                                       Href="@p.MapsUrl" Target="_blank" />
+                                        <MudIconButton Icon="@Icons.Material.Filled.Info" Size="Size.Small" Color="Color.Default"
+                                                       Href="@($"/pharmacy/{p.PharmacyId}")" />
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </MudSimpleTable>
                 }
             </MudItem>
         </MudGrid>
@@ -162,7 +167,7 @@
 
     private Medicine? _medicine;
     private IReadOnlyList<PharmacyResultDto> _rawPharmacies = [];
-    private IReadOnlyList<RankedPharmacyDto> _rankedPharmacies = [];
+    private List<RankedPharmacyDto> _rankedPharmacies = [];
     private DrugstoreSystem.Domain.Enums.SortMode _sortMode = DrugstoreSystem.Domain.Enums.SortMode.Distance;
     private double? _userLat;
     private double? _userLng;
@@ -186,14 +191,14 @@
             _userLng = loc.Lng;
         }
         catch { }
-        _rankedPharmacies = PharmacyRanker.Rank(_rawPharmacies, _userLat, _userLng, _sortMode);
+        _rankedPharmacies = PharmacyRanker.Rank(_rawPharmacies, _userLat, _userLng, _sortMode).ToList();
         StateHasChanged();
     }
 
-    private void OnSortModeChanged(DrugstoreSystem.Domain.Enums.SortMode mode)
+    private void ApplySort(DrugstoreSystem.Domain.Enums.SortMode mode)
     {
         _sortMode = mode;
-        _rankedPharmacies = PharmacyRanker.Rank(_rawPharmacies, _userLat, _userLng, mode);
+        _rankedPharmacies = PharmacyRanker.Rank(_rawPharmacies, _userLat, _userLng, mode).ToList();
     }
 
     private record LocationResult(double Lat, double Lng);

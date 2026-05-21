@@ -1,6 +1,7 @@
 @page "/"
 @inject ISearchService SearchService
 @inject IJSRuntime JS
+@inject IHttpClientFactory HttpClientFactory
 
 <PageTitle>Dori qidirish | DorixonaSearch</PageTitle>
 
@@ -11,7 +12,7 @@
         Dori nomini kiriting — yaqin dorixonalarni topamiz
     </MudText>
 
-    <MudPaper Elevation="2" Class="pa-4 mb-6">
+    <MudPaper Elevation="2" Class="pa-4 mb-4">
         <MudGrid>
             <MudItem xs="12" sm="8">
                 <MudTextField @bind-Value="_query"
@@ -35,6 +36,47 @@
                     }
                     Qidirish
                 </MudButton>
+            </MudItem>
+        </MudGrid>
+
+        <MudGrid Class="mt-3">
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="_manualCity"
+                              Placeholder="Shahar nomi (masalan: Farg'ona)"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.LocationOn"
+                              Variant="Variant.Outlined"
+                              OnKeyDown="OnCityKeyDown" />
+                @if (_locationStatus is not null)
+                {
+                    <MudText Typo="Typo.caption" Color="@_locationColor" Class="mt-1">@_locationStatus</MudText>
+                }
+            </MudItem>
+            <MudItem xs="12" sm="3">
+                <MudButton Variant="Variant.Outlined" Color="Color.Primary" FullWidth
+                           OnClick="GeocodeManualCity" Disabled="_geocoding">
+                    @if (_geocoding)
+                    {
+                        <MudProgressCircular Size="Size.Small" Indeterminate Class="mr-2" />
+                    }
+                    Joyni belgilash
+                </MudButton>
+            </MudItem>
+            <MudItem xs="12" sm="3">
+                <MudButtonGroup Variant="Variant.Outlined" Color="Color.Primary" OverrideStyles="false">
+                    <MudButton Color="@(_sortMode == DrugstoreSystem.Domain.Enums.SortMode.Distance ? Color.Primary : Color.Default)"
+                               Variant="@(_sortMode == DrugstoreSystem.Domain.Enums.SortMode.Distance ? Variant.Filled : Variant.Outlined)"
+                               OnClick="@(() => ApplySort(DrugstoreSystem.Domain.Enums.SortMode.Distance))">
+                        <MudIcon Icon="@Icons.Material.Filled.NearMe" Size="Size.Small" Class="mr-1" />
+                        Yaqinlik
+                    </MudButton>
+                    <MudButton Color="@(_sortMode == DrugstoreSystem.Domain.Enums.SortMode.Price ? Color.Primary : Color.Default)"
+                               Variant="@(_sortMode == DrugstoreSystem.Domain.Enums.SortMode.Price ? Variant.Filled : Variant.Outlined)"
+                               OnClick="@(() => ApplySort(DrugstoreSystem.Domain.Enums.SortMode.Price))">
+                        <MudIcon Icon="@Icons.Material.Filled.AttachMoney" Size="Size.Small" Class="mr-1" />
+                        Narx
+                    </MudButton>
+                </MudButtonGroup>
             </MudItem>
         </MudGrid>
     </MudPaper>
@@ -63,42 +105,52 @@
                 <MudText Typo="Typo.caption" Color="Color.Secondary">@result.Pharmacies.Count ta dorixona</MudText>
             </MudStack>
 
-            <MudTable Items="@result.Pharmacies" Dense Hover Elevation="0">
-                <HeaderContent>
-                    <MudTh>Dorixona</MudTh>
-                    <MudTh>Narxi</MudTh>
-                    <MudTh>Miqdor</MudTh>
-                    <MudTh>Ish vaqti</MudTh>
-                    <MudTh></MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Dorixona">
-                        <MudText>@context.PharmacyName</MudText>
-                        <MudText Typo="Typo.caption" Color="Color.Secondary">@context.Address</MudText>
-                    </MudTd>
-                    <MudTd DataLabel="Narxi">@context.Price.ToString("N0") so'm</MudTd>
-                    <MudTd DataLabel="Miqdor">
-                        @if (context.Quantity < 5)
-                        {
-                            <MudChip T="string" Color="Color.Warning" Size="Size.Small">@context.Quantity ta</MudChip>
-                        }
-                        else
-                        {
-                            <MudText>@context.Quantity ta</MudText>
-                        }
-                    </MudTd>
-                    <MudTd DataLabel="Ish vaqti">
-                        <MudText Typo="Typo.caption">@(context.WorkingHours ?? "—")</MudText>
-                    </MudTd>
-                    <MudTd>
-                        <MudIconButton Icon="@Icons.Material.Filled.Map" Size="Size.Small" Color="Color.Primary"
-                                       Href="@($"https://www.google.com/maps/search/?api=1&query={context.Latitude},{context.Longitude}")"
-                                       Target="_blank" />
-                        <MudIconButton Icon="@Icons.Material.Filled.Info" Size="Size.Small" Color="Color.Default"
-                                       Href="@($"/pharmacy/{context.PharmacyId}")" />
-                    </MudTd>
-                </RowTemplate>
-            </MudTable>
+            <MudSimpleTable Dense Hover Elevation="0">
+                <thead>
+                    <tr>
+                        <th>Dorixona</th>
+                        <th>Narxi</th>
+                        <th>Miqdor</th>
+                        <th>Masofa</th>
+                        <th>Ish vaqti</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in result.Pharmacies)
+                    {
+                        <tr>
+                            <td>
+                                <MudText>@p.PharmacyName</MudText>
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">@p.Address</MudText>
+                            </td>
+                            <td>@p.Price.ToString("N0") so'm</td>
+                            <td>
+                                @if (p.Quantity < 5)
+                                {
+                                    <MudChip T="string" Color="Color.Warning" Size="Size.Small">@p.Quantity ta</MudChip>
+                                }
+                                else
+                                {
+                                    <MudText>@p.Quantity ta</MudText>
+                                }
+                            </td>
+                            <td>
+                                <MudText Typo="Typo.caption">
+                                    @(p.DistanceKm.HasValue ? $"{p.DistanceKm:F1} km" : "—")
+                                </MudText>
+                            </td>
+                            <td><MudText Typo="Typo.caption">@(p.WorkingHours ?? "—")</MudText></td>
+                            <td>
+                                <MudIconButton Icon="@Icons.Material.Filled.Map" Size="Size.Small" Color="Color.Primary"
+                                               Href="@p.MapsUrl" Target="_blank" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Info" Size="Size.Small" Color="Color.Default"
+                                               Href="@($"/pharmacy/{p.PharmacyId}")" />
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </MudSimpleTable>
         </MudPaper>
     }
 
@@ -106,17 +158,95 @@
 
 @using DrugstoreSystem.Application.DTOs
 @using DrugstoreSystem.Application.Interfaces
+@using System.Globalization
+@using System.Text.Json.Serialization
 
 @code {
     private string _query = string.Empty;
     private string _lastQuery = string.Empty;
+    private string _manualCity = string.Empty;
     private bool _searching;
+    private bool _geocoding;
     private bool _searched;
-    private IReadOnlyList<SearchResultDto> _results = [];
+    private DrugstoreSystem.Domain.Enums.SortMode _sortMode = DrugstoreSystem.Domain.Enums.SortMode.Distance;
+    private double? _userLat;
+    private double? _userLng;
+    private string? _locationStatus;
+    private Color _locationColor = Color.Success;
+    private List<SearchResultDto> _results = [];
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        try
+        {
+            var loc = await JS.InvokeAsync<LocationResult>("getLocation");
+            _userLat = loc.Lat;
+            _userLng = loc.Lng;
+            _locationStatus = $"Joylashuv aniqlandi: {loc.Lat:F4}, {loc.Lng:F4}";
+            _locationColor = Color.Success;
+        }
+        catch
+        {
+            _locationStatus = "Joylashuv aniqlanmadi — shahar nomini kiriting";
+            _locationColor = Color.Warning;
+        }
+        StateHasChanged();
+    }
 
     private async Task OnKeyDown(KeyboardEventArgs e)
     {
         if (e.Key == "Enter") await SearchAsync();
+    }
+
+    private async Task OnCityKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") await GeocodeManualCity();
+    }
+
+    private async Task GeocodeManualCity()
+    {
+        if (string.IsNullOrWhiteSpace(_manualCity)) return;
+        _geocoding = true;
+        try
+        {
+            var http = HttpClientFactory.CreateClient("nominatim");
+            var url = $"https://nominatim.openstreetmap.org/search?q={Uri.EscapeDataString(_manualCity)}&format=json&limit=1";
+            var results = await http.GetFromJsonAsync<NominatimResult[]>(url);
+            if (results?.Length > 0)
+            {
+                _userLat = double.Parse(results[0].Lat, CultureInfo.InvariantCulture);
+                _userLng = double.Parse(results[0].Lon, CultureInfo.InvariantCulture);
+                _locationStatus = $"Joylashuv: {results[0].DisplayName}";
+                _locationColor = Color.Success;
+                if (_searched) await SearchAsync();
+            }
+            else
+            {
+                _locationStatus = "Shahar topilmadi";
+                _locationColor = Color.Error;
+            }
+        }
+        catch
+        {
+            _locationStatus = "Xatolik yuz berdi";
+            _locationColor = Color.Error;
+        }
+        finally
+        {
+            _geocoding = false;
+        }
+    }
+
+    private void ApplySort(DrugstoreSystem.Domain.Enums.SortMode mode)
+    {
+        _sortMode = mode;
+        if (_results.Count == 0) return;
+        _results = _results.Select(r => r with
+        {
+            Pharmacies = DrugstoreSystem.Application.Algorithms.PharmacyRanker.Rank(
+                r.RawPharmacies, _userLat, _userLng, mode)
+        }).ToList();
     }
 
     private async Task SearchAsync()
@@ -127,7 +257,7 @@
         _lastQuery = _query.Trim();
         try
         {
-            _results = await SearchService.SearchAsync(_lastQuery);
+            _results = (await SearchService.SearchAsync(_lastQuery, _userLat, _userLng, _sortMode)).ToList();
             _searched = true;
         }
         finally
@@ -135,4 +265,11 @@
             _searching = false;
         }
     }
+
+    private record LocationResult(double Lat, double Lng);
+
+    private record NominatimResult(
+        [property: JsonPropertyName("lat")] string Lat,
+        [property: JsonPropertyName("lon")] string Lon,
+        [property: JsonPropertyName("display_name")] string DisplayName);
 }

@@ -1,6 +1,7 @@
 @page "/medicine/{Id:int}"
 @inject IMedicineService MedicineService
 @inject IInventoryRepository InventoryRepository
+@inject IJSRuntime JS
 @inject NavigationManager Nav
 
 <PageTitle>Dori ma'lumoti | DorixonaSearch</PageTitle>
@@ -78,19 +79,37 @@
             </MudItem>
 
             <MudItem xs="12" md="7">
-                <MudText Typo="Typo.h6" Class="mb-2">Mavjud dorixonalar</MudText>
+                <MudStack Row AlignItems="AlignItems.Center" Class="mb-2">
+                    <MudText Typo="Typo.h6">Mavjud dorixonalar</MudText>
+                    <MudSpacer />
+                    <MudToggleGroup T="DrugstoreSystem.Domain.Enums.SortMode"
+                                    Value="_sortMode"
+                                    SelectionMode="SelectionMode.SingleSelection"
+                                    Color="Color.Primary" CheckMark
+                                    ValueChanged="OnSortModeChanged">
+                        <MudToggleItem Value="DrugstoreSystem.Domain.Enums.SortMode.Distance">
+                            <MudIcon Icon="@Icons.Material.Filled.NearMe" Size="Size.Small" Class="mr-1" />
+                            Yaqinlik
+                        </MudToggleItem>
+                        <MudToggleItem Value="DrugstoreSystem.Domain.Enums.SortMode.Price">
+                            <MudIcon Icon="@Icons.Material.Filled.AttachMoney" Size="Size.Small" Class="mr-1" />
+                            Narx
+                        </MudToggleItem>
+                    </MudToggleGroup>
+                </MudStack>
 
-                @if (_pharmacies.Count == 0)
+                @if (_rankedPharmacies.Count == 0)
                 {
                     <EmptyState Message="Bu dori hozirda hech qaysi dorixonada mavjud emas" />
                 }
                 else
                 {
-                    <MudTable Items="@_pharmacies" Dense Hover Elevation="1">
+                    <MudTable Items="@_rankedPharmacies" Dense Hover Elevation="1">
                         <HeaderContent>
                             <MudTh>Dorixona</MudTh>
                             <MudTh>Narxi</MudTh>
                             <MudTh>Miqdor</MudTh>
+                            <MudTh>Masofa</MudTh>
                             <MudTh>Ish vaqti</MudTh>
                             <MudTh></MudTh>
                         </HeaderContent>
@@ -110,13 +129,17 @@
                                     <MudText>@context.Quantity ta</MudText>
                                 }
                             </MudTd>
+                            <MudTd DataLabel="Masofa">
+                                <MudText Typo="Typo.caption">
+                                    @(context.DistanceKm.HasValue ? $"{context.DistanceKm:F1} km" : "Masofa noma'lum")
+                                </MudText>
+                            </MudTd>
                             <MudTd DataLabel="Ish vaqti">
                                 <MudText Typo="Typo.caption">@(context.WorkingHours ?? "—")</MudText>
                             </MudTd>
                             <MudTd>
                                 <MudIconButton Icon="@Icons.Material.Filled.Map" Size="Size.Small" Color="Color.Primary"
-                                               Href="@($"https://www.google.com/maps/search/?api=1&query={context.Latitude},{context.Longitude}")"
-                                               Target="_blank" />
+                                               Href="@context.MapsUrl" Target="_blank" />
                                 <MudIconButton Icon="@Icons.Material.Filled.Info" Size="Size.Small" Color="Color.Default"
                                                Href="@($"/pharmacy/{context.PharmacyId}")" />
                             </MudTd>
@@ -129,23 +152,49 @@
 
 </MudContainer>
 
+@using DrugstoreSystem.Application.Algorithms
 @using DrugstoreSystem.Application.DTOs
 @using DrugstoreSystem.Application.Helpers
 @using DrugstoreSystem.Application.Interfaces
 @using DrugstoreSystem.Domain.Entities
-
 @code {
     [Parameter] public int Id { get; set; }
 
     private Medicine? _medicine;
-    private IReadOnlyList<PharmacyResultDto> _pharmacies = [];
+    private IReadOnlyList<PharmacyResultDto> _rawPharmacies = [];
+    private IReadOnlyList<RankedPharmacyDto> _rankedPharmacies = [];
+    private DrugstoreSystem.Domain.Enums.SortMode _sortMode = DrugstoreSystem.Domain.Enums.SortMode.Distance;
+    private double? _userLat;
+    private double? _userLng;
     private bool _loading = true;
 
     protected override async Task OnInitializedAsync()
     {
         _medicine = await MedicineService.GetByIdAsync(Id);
         if (_medicine is not null)
-            _pharmacies = await InventoryRepository.GetAvailablePharmaciesAsync(Id);
+            _rawPharmacies = await InventoryRepository.GetAvailablePharmaciesAsync(Id);
         _loading = false;
     }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        try
+        {
+            var loc = await JS.InvokeAsync<LocationResult>("getLocation");
+            _userLat = loc.Lat;
+            _userLng = loc.Lng;
+        }
+        catch { }
+        _rankedPharmacies = PharmacyRanker.Rank(_rawPharmacies, _userLat, _userLng, _sortMode);
+        StateHasChanged();
+    }
+
+    private void OnSortModeChanged(DrugstoreSystem.Domain.Enums.SortMode mode)
+    {
+        _sortMode = mode;
+        _rankedPharmacies = PharmacyRanker.Rank(_rawPharmacies, _userLat, _userLng, mode);
+    }
+
+    private record LocationResult(double Lat, double Lng);
 }

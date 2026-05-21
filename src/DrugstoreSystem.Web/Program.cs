@@ -22,6 +22,9 @@ try
 
     builder.Services.AddInfrastructure(builder.Configuration);
 
+    builder.Services.AddHttpClient("nominatim", c =>
+        c.DefaultRequestHeaders.UserAgent.ParseAdd("DrugstoreSystem/1.0"));
+
     builder.Services.AddRazorComponents()
         .AddInteractiveServerComponents();
 

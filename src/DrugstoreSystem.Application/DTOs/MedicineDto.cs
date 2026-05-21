@@ -34,7 +34,20 @@ public record PharmacyResultDto(
     int InventoryId
 );
 
+public record RankedPharmacyDto(
+    int PharmacyId,
+    string PharmacyName,
+    string Address,
+    string? Phone,
+    string? WorkingHours,
+    decimal Price,
+    int Quantity,
+    double? DistanceKm,
+    string MapsUrl
+);
+
 public record SearchResultDto(
     MedicineCandidateDto Medicine,
-    IReadOnlyList<PharmacyResultDto> Pharmacies
+    IReadOnlyList<PharmacyResultDto> RawPharmacies,
+    IReadOnlyList<RankedPharmacyDto> Pharmacies
 );

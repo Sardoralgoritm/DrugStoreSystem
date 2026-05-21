@@ -493,7 +493,7 @@ DEV-00 Bootstrap
 | DEV-04 | DONE | main | 0df7d61 | — |
 | DEV-05 | DONE | main | 8eab23a | — |
 | DEV-06 | DONE | main | c1e6e16 | — |
-| DEV-07 | DONE | main | — | — |
+| DEV-07 | DONE | main | 17b654b | — |
 | DEV-08 | TODO | — | — | — |
 | DEV-09 | TODO | — | — | — |
 | DEV-10 | TODO | — | — | — |

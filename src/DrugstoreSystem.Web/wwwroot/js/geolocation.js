@@ -6,7 +6,7 @@ window.getLocation = function () {
         }
         navigator.geolocation.getCurrentPosition(
             function (pos) {
-                resolve({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
+                resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude });
             },
             function (err) {
                 reject(err.message);

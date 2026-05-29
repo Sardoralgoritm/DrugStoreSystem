@@ -1,5 +1,119 @@
-﻿@page "/not-found"
+@page "/not-found"
 @layout MainLayout
 
-<h3>Not Found</h3>
-<p>Sorry, the content you are looking for does not exist.</p>
+<PageTitle>404 — Sahifa topilmadi</PageTitle>
+
+<div class="nf-page">
+
+    @* Floating decorative pills *@
+    <div class="nf-pill p1"></div>
+    <div class="nf-pill p2"></div>
+    <div class="nf-pill p3"></div>
+    <div class="nf-pill p4"></div>
+    <div class="nf-pill p5"></div>
+    <div class="nf-pill p6"></div>
+
+    @* Center card *@
+    <div class="nf-center">
+        <div class="nf-cross">+</div>
+
+        <div class="nf-404">404</div>
+
+        <MudText Typo="Typo.h5" Class="mb-2" Style="font-weight:600; color:#1565C0;">
+            Sahifa topilmadi
+        </MudText>
+        <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-6">
+            Siz qidirayotgan sahifa mavjud emas yoki o'chirilgan.
+        </MudText>
+
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Size="Size.Large"
+                   StartIcon="@Icons.Material.Filled.Home"
+                   Href="/">
+            Bosh sahifaga qaytish
+        </MudButton>
+    </div>
+</div>
+
+<style>
+    .nf-page {
+        position: relative;
+        min-height: calc(100vh - 64px);
+        background: linear-gradient(145deg, #e3f2fd 0%, #f5f9ff 60%, #e8f4fd 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    /* ── Center card ── */
+    .nf-center {
+        position: relative;
+        z-index: 10;
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 3rem 4rem;
+        text-align: center;
+        box-shadow: 0 8px 40px rgba(21, 101, 192, 0.12);
+        max-width: 460px;
+        width: 90%;
+    }
+
+    /* Pharmacy cross */
+    .nf-cross {
+        font-size: 3.5rem;
+        font-weight: 900;
+        color: #1565C0;
+        line-height: 1;
+        margin-bottom: 0.25rem;
+        animation: crossPulse 2.4s ease-in-out infinite;
+        display: inline-block;
+    }
+
+    @@keyframes crossPulse {
+        0%, 100% { transform: scale(1);   opacity: 1;   }
+        50%       { transform: scale(1.15); opacity: 0.7; }
+    }
+
+    /* 404 text */
+    .nf-404 {
+        font-size: 6.5rem;
+        font-weight: 900;
+        line-height: 1;
+        background: linear-gradient(135deg, #1565C0 30%, #42a5f5 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+        letter-spacing: -4px;
+    }
+
+    /* ── Floating pills ── */
+    .nf-pill {
+        position: absolute;
+        border-radius: 50px;
+        opacity: 0.18;
+    }
+
+    /* Sizes & positions */
+    .p1 { width: 90px;  height: 34px; background: #1565C0; top: 10%; left: 8%;  transform: rotate(20deg);  animation: float1 4.2s ease-in-out infinite; }
+    .p2 { width: 60px;  height: 24px; background: #42a5f5; top: 20%; left: 18%; transform: rotate(-15deg); animation: float2 3.6s ease-in-out infinite; }
+    .p3 { width: 110px; height: 40px; background: #1976d2; top: 8%;  right: 10%;transform: rotate(-25deg); animation: float3 5.0s ease-in-out infinite; }
+    .p4 { width: 70px;  height: 28px; background: #1565C0; top: 30%; right: 7%; transform: rotate(10deg);  animation: float1 4.8s ease-in-out infinite 0.8s; }
+    .p5 { width: 80px;  height: 30px; background: #42a5f5; bottom: 15%; left: 10%; transform: rotate(30deg);  animation: float2 3.9s ease-in-out infinite 1.2s; }
+    .p6 { width: 55px;  height: 22px; background: #1976d2; bottom: 20%; right: 12%;transform: rotate(-18deg); animation: float3 4.5s ease-in-out infinite 0.5s; }
+
+    @@keyframes float1 {
+        0%, 100% { transform: rotate(20deg)  translateY(0);    }
+        50%       { transform: rotate(20deg)  translateY(-18px); }
+    }
+    @@keyframes float2 {
+        0%, 100% { transform: rotate(-15deg) translateY(0);    }
+        50%       { transform: rotate(-15deg) translateY(-14px); }
+    }
+    @@keyframes float3 {
+        0%, 100% { transform: rotate(-25deg) translateY(0);    }
+        50%       { transform: rotate(-25deg) translateY(-22px); }
+    }
+</style>

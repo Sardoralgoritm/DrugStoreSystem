@@ -24,7 +24,7 @@ public static class PharmacyRanker
                                     userLat.Value, userLng.Value,
                                     p.Latitude, p.Longitude), 1)
                               : (double?)null,
-            MapsUrl: $"https://www.google.com/maps/search/?api=1&query={p.Latitude},{p.Longitude}"
+            MapsUrl: FormattableString.Invariant($"https://www.google.com/maps/search/?api=1&query={p.Latitude},{p.Longitude}")
         ));
 
         return sortMode switch

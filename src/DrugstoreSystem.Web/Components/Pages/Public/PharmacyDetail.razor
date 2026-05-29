@@ -63,7 +63,7 @@
                     <MudButton Variant="Variant.Filled"
                                Color="Color.Primary"
                                StartIcon="@Icons.Material.Filled.Map"
-                               Href="@($"https://www.google.com/maps/search/?api=1&query={_pharmacy.Latitude},{_pharmacy.Longitude}")"
+                               Href="@(FormattableString.Invariant($"https://www.google.com/maps/search/?api=1&query={_pharmacy.Latitude},{_pharmacy.Longitude}"))"
                                Target="_blank"
                                FullWidth>
                         Xaritada ko'rish

@@ -4,7 +4,8 @@ public record MedicineAutocompleteDto(
     int Id,
     string Name,
     string? GenericName,
-    string? DosageForm
+    string? DosageForm,
+    string? Manufacturer
 );
 
 public record CategoryDto(int Id, string Name);

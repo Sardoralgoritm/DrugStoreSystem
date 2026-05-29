@@ -27,7 +27,7 @@ public class SearchRepository : ISearchRepository
             .ToListAsync(ct);
 
         return medicines
-            .Select(m => new MedicineAutocompleteDto(m.Id, m.Name, m.GenericName, m.DosageForm.ToUzbek()))
+            .Select(m => new MedicineAutocompleteDto(m.Id, m.Name, m.GenericName, m.DosageForm.ToUzbek(), m.Manufacturer))
             .ToList();
     }
 

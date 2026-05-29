@@ -1,4 +1,5 @@
 using DrugstoreSystem.Application.DTOs;
+using DrugstoreSystem.Application.Helpers;
 using DrugstoreSystem.Application.Interfaces;
 using DrugstoreSystem.Application.Requests;
 using DrugstoreSystem.Domain.Entities;
@@ -43,6 +44,6 @@ public class MedicineService : IMedicineService
 
         return new MedicineAutocompleteDto(
             medicine.Id, medicine.Name, medicine.GenericName,
-            medicine.DosageForm?.ToString());
+            medicine.DosageForm.ToUzbek(), medicine.Manufacturer);
     }
 }

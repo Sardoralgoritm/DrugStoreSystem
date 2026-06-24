@@ -13,9 +13,6 @@ COPY . .
 RUN dotnet publish src/DrugstoreSystem.Web/DrugstoreSystem.Web.csproj \
     -c Release -o /app/publish --no-restore
 
-RUN echo "=== Searching for blazor.web.js ===" && \
-    find / -name "blazor.web*" 2>/dev/null | head -30 || true
-
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/publish .

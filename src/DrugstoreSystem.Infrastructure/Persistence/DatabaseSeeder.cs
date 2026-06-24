@@ -123,7 +123,7 @@ public class DatabaseSeeder
 
     private async Task SeedMedicinesAsync()
     {
-        if (await _db.Medicines.AnyAsync(m => m.CreatedByPharmacyId == null)) return;
+        if (await _db.Medicines.AnyAsync()) return;
 
         // Ensure all required categories exist (idempotent)
         var requiredCategories = new[]

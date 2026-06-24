@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0
 WORKDIR /src
 
 COPY DrugstoreSystem.slnx .
@@ -10,12 +10,9 @@ COPY tests/DrugstoreSystem.UnitTests/DrugstoreSystem.UnitTests.csproj tests/Drug
 RUN dotnet restore
 
 COPY . .
-RUN dotnet publish src/DrugstoreSystem.Web/DrugstoreSystem.Web.csproj \
-    -c Release -o /app/publish --no-restore
+RUN dotnet build src/DrugstoreSystem.Web/DrugstoreSystem.Web.csproj --no-restore
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
-WORKDIR /app
-COPY --from=build /app/publish .
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
-ENTRYPOINT ["dotnet", "DrugstoreSystem.Web.dll"]
+WORKDIR /src/src/DrugstoreSystem.Web
+ENTRYPOINT ["dotnet", "run", "--no-restore", "--no-build", "--no-launch-profile"]

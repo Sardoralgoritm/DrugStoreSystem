@@ -10,9 +10,12 @@ COPY tests/DrugstoreSystem.UnitTests/DrugstoreSystem.UnitTests.csproj tests/Drug
 RUN dotnet restore
 
 COPY . .
-RUN dotnet build src/DrugstoreSystem.Web/DrugstoreSystem.Web.csproj --no-restore
+RUN dotnet build src/DrugstoreSystem.Web/DrugstoreSystem.Web.csproj -c Debug --no-restore
 
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
+
+# Run from the project directory so the staticwebassets runtime manifest
+# (which maps _framework/blazor.web.js to the in-container NuGet cache) is found.
 WORKDIR /src/src/DrugstoreSystem.Web
-ENTRYPOINT ["dotnet", "run", "--no-restore", "--no-build", "--no-launch-profile"]
+ENTRYPOINT ["dotnet", "bin/Debug/net10.0/DrugstoreSystem.Web.dll"]

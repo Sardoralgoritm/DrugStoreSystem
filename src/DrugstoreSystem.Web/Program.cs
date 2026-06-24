@@ -15,6 +15,11 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
 
+    // Load the static web assets manifest so framework assets (blazor.web.js,
+    // shipped in the microsoft.aspnetcore.app.internal.assets NuGet package) are
+    // served. Required because we run the build output, not a publish output.
+    builder.WebHost.UseStaticWebAssets();
+
     builder.Host.UseSerilog((context, services, config) =>
         config.ReadFrom.Configuration(context.Configuration)
               .ReadFrom.Services(services)

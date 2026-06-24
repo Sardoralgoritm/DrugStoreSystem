@@ -1,0 +1,14 @@
+**/bin/
+**/obj/
+**/.vs/
+**/.idea/
+**/TestResults/
+**/coverage/
+logs/
+.env
+.env.*
+*.user
+*.suo
+deploy/
+docs/
+.claude/

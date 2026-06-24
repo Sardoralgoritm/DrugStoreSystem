@@ -83,7 +83,7 @@ try
         return Results.Redirect("/auth/login");
     });
 
-    app.MapStaticAssets();
+    app.UseStaticFiles();
     app.MapRazorComponents<App>()
         .AddInteractiveServerRenderMode();
 
